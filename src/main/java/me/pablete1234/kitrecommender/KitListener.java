@@ -1,6 +1,8 @@
 package me.pablete1234.kitrecommender;
 
 import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.SetMultimap;
 import com.google.common.collect.Table;
 import me.pablete1234.kitrecommender.engine.KitModifier;
 import me.pablete1234.kitrecommender.engine.KitModifierFactory;
@@ -13,7 +15,10 @@ import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.match.event.MatchFinishEvent;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.kits.ApplyItemKitEvent;
+import tc.oc.pgm.kits.ApplyKitEvent;
+import tc.oc.pgm.kits.ClearItemsKit;
 import tc.oc.pgm.kits.ItemKit;
+import tc.oc.pgm.spawns.events.ParticipantSpawnEvent;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -28,6 +33,7 @@ public class KitListener implements Listener {
     private final KitModifierFactory factory;
     private final Map<ItemKit, ItemKitWrapper> sharedKitState = new HashMap<>();
     private final Table<UUID, ItemKit, KitModifier> playerKitModifiers = HashBasedTable.create();
+    private final SetMultimap<UUID, ItemKit> appliedKits = HashMultimap.create();
 
     public KitListener(KitModifierFactory factory) {
         this.factory = factory;
@@ -43,6 +49,7 @@ public class KitListener implements Listener {
         KitModifier km = playerKitModifiers.get(player, kit);
         if (km == null) playerKitModifiers.put(player, kit, km = factory.create(player, getKitWrapper(kit)));
         km.adjustKit(event);
+        appliedKits.put(player, kit);
     }
 
     @EventHandler
@@ -51,18 +58,38 @@ public class KitListener implements Listener {
         if (pl == null || !pl.isParticipating()) return; // Ignore observers
 
         UUID player = event.getPlayer().getUniqueId();
-        playerKitModifiers.row(player).values().forEach(km -> km.learnPreferences(event));
+        appliedKits.get(player).forEach(kit -> {
+            KitModifier km = playerKitModifiers.get(player, kit);
+            // KitModifier should never be null, since appliedKits.put is only AFTER adjustKit is called,
+            // but we rather be safe than sorry
+            if (km != null) km.learnPreferences(event);
+        });
     }
 
     @EventHandler
-    public void onPlayerQuit(PlayerQuitEvent event) {
-        playerKitModifiers.row(event.getPlayer().getUniqueId()).clear();
+    public void onPlayerSpawn(ParticipantSpawnEvent event) {
+        UUID player = event.getPlayer().getId();
+        appliedKits.get(player).clear();
+    }
+
+    @EventHandler
+    public void onClearKit(ApplyKitEvent event) {
+        if (!(event.getKit() instanceof ClearItemsKit)) return;
+        appliedKits.removeAll(event.getPlayer().getId());
     }
 
     @EventHandler
     public void onMatchFinish(MatchFinishEvent event) {
         sharedKitState.clear();
         playerKitModifiers.clear();
+        appliedKits.clear();
+    }
+
+    @EventHandler
+    public void onPlayerQuit(PlayerQuitEvent event) {
+        UUID player = event.getPlayer().getUniqueId();
+        playerKitModifiers.row(player).clear();
+        appliedKits.removeAll(player);
     }
 
     private ItemKitWrapper getKitWrapper(ItemKit kit) {
