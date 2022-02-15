@@ -1,0 +1,4 @@
+name: KitRecommender
+main: me.pablete1234.kitrecommender.KitRecommender
+version: 1.0.0-SNAPSHOT
+depend: [PGM]
