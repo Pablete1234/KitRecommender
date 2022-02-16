@@ -14,6 +14,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.api.match.event.MatchFinishEvent;
 import tc.oc.pgm.api.player.MatchPlayer;
+import tc.oc.pgm.api.player.event.MatchPlayerDeathEvent;
 import tc.oc.pgm.kits.ApplyItemKitEvent;
 import tc.oc.pgm.kits.ApplyKitEvent;
 import tc.oc.pgm.kits.ClearItemsKit;
@@ -41,7 +42,7 @@ public class KitListener implements Listener {
 
     @EventHandler
     public void adjustKit(ApplyItemKitEvent event) {
-        if (!event.getPlayer().isParticipating()) return; // Ignore observer kits
+        if (!event.getPlayer().canInteract()) return; // Ignore observer kits
 
         UUID player = event.getPlayer().getId();
         ItemKit kit = event.getKit();
@@ -55,7 +56,7 @@ public class KitListener implements Listener {
     @EventHandler
     public void learnPreferences(InventoryCloseEvent event) {
         MatchPlayer pl = PGM.get().getMatchManager().getPlayer(event.getPlayer());
-        if (pl == null || !pl.isParticipating()) return; // Ignore observers
+        if (pl == null || !pl.canInteract()) return; // Ignore observers
 
         UUID player = event.getPlayer().getUniqueId();
         appliedKits.get(player).forEach(kit -> {
@@ -68,8 +69,12 @@ public class KitListener implements Listener {
 
     @EventHandler
     public void onPlayerSpawn(ParticipantSpawnEvent event) {
-        UUID player = event.getPlayer().getId();
-        appliedKits.get(player).clear();
+        appliedKits.get(event.getPlayer().getId()).clear();
+    }
+
+    @EventHandler
+    public void onPlayerDeath(MatchPlayerDeathEvent event) {
+        appliedKits.get(event.getPlayer().getId()).clear();
     }
 
     @EventHandler

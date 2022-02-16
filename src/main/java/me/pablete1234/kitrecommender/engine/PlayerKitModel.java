@@ -8,11 +8,13 @@ import tc.oc.pgm.kits.ApplyItemKitEvent;
 import tc.oc.pgm.kits.Slot;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 /**
  * Represents the kit, modified to fit what a specific player wants.
@@ -38,10 +40,11 @@ public class PlayerKitModel implements KitModifier {
         assert event.getKit() == kit.getKit();
 
         // Completely override whatever kit was going to be given, with the kit customized for the player
+        // We must use item clones, as pgm can modify them when giving to the player
         event.getSlotItems().clear();
-        event.getSlotItems().putAll(slotItems);
+        slotItems.forEach((slot, item) -> event.getSlotItems().put(slot, item.clone()));
         event.getFreeItems().clear();
-        event.getFreeItems().addAll(freeItems);
+        freeItems.forEach(item -> event.getFreeItems().add(item.clone()));
     }
 
     @Override
@@ -58,7 +61,7 @@ public class PlayerKitModel implements KitModifier {
             ItemStack current = slotItems.get(slot);
 
             // No item, or item is not part of the kit. This is further checked later.
-            if (item == null || !kit.containsItem(item)) {
+            if (item == null || !kit.maybeContains(item)) {
                 // An item in the kit exists for that slot, pollItem would not be able to find it if we
                 // just leave it here.
                 // The solution is to move the item to potentiallyUnmapped, and if nothing claims it, it will
@@ -108,44 +111,37 @@ public class PlayerKitModel implements KitModifier {
             if (entry.getKey().getIndex() < currentSlot.getIndex()) continue;
 
             ItemStack kitItem = entry.getValue();
-            if (areSimilar(kitItem, search)) {
-                // Ignore this match if an item also exists in the designated slot in the kit
-                // This is to prevent moving an item that shouldn't need to be moved.
-                if (areSimilar(kitItem, inventory.getItem(entry.getKey().getIndex()))) continue;
-                slotIt.remove();
-                return kitItem;
-            }
+            // Ignore this match if an item also exists in the designated slot in the kit
+            // This is to prevent moving an item that shouldn't need to be moved.
+            if (!areSimilar(kitItem, search) ||
+                    areSimilar(kitItem, inventory.getItem(entry.getKey().getIndex()))) continue;
+            slotIt.remove();
+            return kitItem;
         }
 
         Iterator<ItemStack> itemIt = potentiallyUnmapped.values().iterator();
         while (itemIt.hasNext()) {
             ItemStack kitItem = itemIt.next();
-            if (areSimilar(kitItem, search)) {
-                itemIt.remove();
-                return kitItem;
-            }
+            if (!areSimilar(kitItem, search)) continue;
+            itemIt.remove();
+            return kitItem;
         }
 
         itemIt = freeItems.iterator();
         while (itemIt.hasNext()) {
             ItemStack kitItem = itemIt.next();
-            if (areSimilar(kitItem, search)) {
-                itemIt.remove();
-                return kitItem;
-            }
+            if (!areSimilar(kitItem, search)) continue;
+            itemIt.remove();
+            return kitItem;
         }
         return null;
     }
 
     private boolean areSimilar(ItemStack kit, ItemStack item) {
-        // Fast check for most cases
-        if (item == null || kit.getTypeId() != item.getTypeId()) return false;
-        // Create a clone with correct amount to perform the check
-        if (kit.getAmount() != item.getAmount()) {
-            item = item.clone();
-            item.setAmount(kit.getAmount());
-        }
-        return kit.isSimilar(item, true);
+        return item != null &&
+                kit.getType() == item.getType() &&
+                // If material has durability (eg: sword), ignore. Otherwise (eg: wool color) check durability.
+                (kit.getType().getMaxDurability() > 0 || kit.getDurability() == item.getDurability()) &&
+                kit.getEnchantments().equals(item.getEnchantments());
     }
-
 }

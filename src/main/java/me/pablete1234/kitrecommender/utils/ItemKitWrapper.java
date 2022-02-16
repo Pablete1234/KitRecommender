@@ -3,6 +3,7 @@ package me.pablete1234.kitrecommender.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import tc.oc.pgm.kits.ItemKit;
 import tc.oc.pgm.kits.Slot;
@@ -11,12 +12,13 @@ import java.util.stream.Stream;
 
 public class ItemKitWrapper {
     private final ItemKit kit;
-    private final ImmutableSet<ItemStack> simplified;
+    // FIXME: Potentially use a bloom filter
+    private final ImmutableSet<Material> simplified;
 
     public ItemKitWrapper(ItemKit kit) {
         this.kit = kit;
         this.simplified = Stream.concat(kit.getSlotItems().values().stream(), kit.getFreeItems().stream())
-                .map(ItemKitWrapper::simplifyItem)
+                .map(ItemStack::getType)
                 .collect(CollectorUtil.toImmutableSet());
     }
 
@@ -32,18 +34,12 @@ public class ItemKitWrapper {
         return kit.getFreeItems();
     }
 
-    public ImmutableSet<ItemStack> getSimplifiedItems() {
+    public ImmutableSet<Material> getSimplifiedItems() {
         return simplified;
     }
 
-    public boolean containsItem(ItemStack is) {
-        return simplified.contains(simplifyItem(is));
+    public boolean maybeContains(ItemStack is) {
+        return simplified.contains(is.getType());
     }
 
-    public static ItemStack simplifyItem(ItemStack item) {
-        if (item.getAmount() == item.getMaxStackSize()) return item;
-        ItemStack is = item.clone();
-        is.setAmount(item.getMaxStackSize());
-        return is;
-    }
 }

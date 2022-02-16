@@ -1,4 +1,5 @@
 name: KitRecommender
+description: ${project.description}
 main: me.pablete1234.kitrecommender.KitRecommender
-version: 1.0.0-SNAPSHOT
+version: ${project.version} (git-${git.commit.id.abbrev})
 depend: [PGM]
