@@ -42,4 +42,8 @@ public class ItemKitWrapper {
         return simplified.contains(is.getType());
     }
 
+    public boolean doesntContain(ItemStack is) {
+        return !simplified.contains(is.getType());
+    }
+
 }
