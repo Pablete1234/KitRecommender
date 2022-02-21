@@ -8,14 +8,25 @@ import org.bukkit.inventory.ItemStack;
 import tc.oc.pgm.kits.ItemKit;
 import tc.oc.pgm.kits.Slot;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 public class ItemKitWrapper {
-    private final ItemKit kit;
-    // FIXME: Potentially use a bloom filter
-    private final ImmutableSet<Material> simplified;
+    private static final Map<ItemKit, ItemKitWrapper> instances = new HashMap<>();
 
-    public ItemKitWrapper(ItemKit kit) {
+    public static ItemKitWrapper of(ItemKit kit) {
+        return instances.computeIfAbsent(kit, ItemKitWrapper::new);
+    }
+
+    public static void cleanup() {
+        instances.clear();
+    }
+
+    private final ItemKit kit;
+    private final ImmutableSet<Material> simplified; // FIXME: Potentially use a bloom filter
+
+    private ItemKitWrapper(ItemKit kit) {
         this.kit = kit;
         this.simplified = Stream.concat(kit.getSlotItems().values().stream(), kit.getFreeItems().stream())
                 .map(ItemStack::getType)

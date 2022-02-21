@@ -1,6 +1,8 @@
-package me.pablete1234.kitrecommender.engine;
+package me.pablete1234.kitrecommender.modifiers;
 
+import me.pablete1234.kitrecommender.itf.SimpleKitModifier;
 import me.pablete1234.kitrecommender.utils.Categories;
+import me.pablete1234.kitrecommender.utils.InventoryImage;
 import me.pablete1234.kitrecommender.utils.ItemKitWrapper;
 import org.bukkit.Material;
 import org.bukkit.event.inventory.InventoryCloseEvent;
@@ -21,7 +23,7 @@ import java.util.UUID;
 /**
  * Represents the kit, modified to fit what a specific player wants.
  */
-public class PlayerKitModel implements KitModifier {
+public class PlayerKitModel implements SimpleKitModifier {
 
     // Duration in which changes are always considered preferences, since application of the kit.
     // Changes made within this period are uncontested and always considered intended
@@ -65,7 +67,7 @@ public class PlayerKitModel implements KitModifier {
 
         Map<Slot, ItemStack> potentiallyUnmapped = new HashMap<>();
 
-        for (int i = 0; i < inventory.getSize(); i++) {
+        for (int i = 0; i < InventoryImage.PLAYER_SIZE; i++) {
             ItemStack item = inventory.getItem(i);
             Slot slot = Slot.Player.forIndex(i);
             ItemStack current = slotItems.get(slot);

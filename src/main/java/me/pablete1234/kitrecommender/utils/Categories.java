@@ -1,5 +1,9 @@
 package me.pablete1234.kitrecommender.utils;
 
+import me.pablete1234.kitrecommender.utils.category.Bucket;
+import me.pablete1234.kitrecommender.utils.category.Category;
+import me.pablete1234.kitrecommender.utils.category.Tool;
+import me.pablete1234.kitrecommender.utils.category.Weapon;
 import org.bukkit.Material;
 import org.jetbrains.annotations.Nullable;
 
@@ -12,9 +16,9 @@ public abstract class Categories {
 
     static {
         CATEGORY_MAP = new EnumMap<>(Material.class);
-        add(Category.Weapon.values());
-        add(Category.Tool.values());
-        add(Category.Bucket.INSTANCE);
+        add(Weapon.values());
+        add(Tool.values());
+        add(Bucket.INSTANCE);
     }
 
     private static void add(Category... categories) {

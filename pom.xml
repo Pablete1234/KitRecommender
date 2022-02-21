@@ -12,7 +12,7 @@
 
     <groupId>me.pablete1234</groupId>
     <artifactId>KitRecommender</artifactId>
-    <version>1.1</version>
+    <version>1.2</version>
 
     <name>KitRecommender</name>
     <description>Plugin to automatically sort kits for the player</description>
@@ -22,6 +22,10 @@
             <id>ashcon.app</id>
             <url>https://repo.ashcon.app/content/repositories/snapshots</url>
         </repository>
+        <repository>
+            <id>sonatype-oss</id>
+            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
     </repositories>
 
 
@@ -29,13 +33,13 @@
         <dependency>
             <groupId>tc.oc.pgm</groupId>
             <artifactId>core</artifactId>
-            <version>0.11-SNAPSHOT</version>
+            <version>0.12-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>tc.oc.pgm</groupId>
             <artifactId>util</artifactId>
-            <version>0.11-SNAPSHOT</version>
+            <version>0.12-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
