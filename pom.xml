@@ -50,9 +50,9 @@
         </dependency>
 
         <dependency>
-            <groupId>com.github.strategicblue</groupId>
+            <groupId>com.github.pablete1234</groupId>
             <artifactId>parquet-floor</artifactId>
-            <version>master-SNAPSHOT</version>
+            <version>java8-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
