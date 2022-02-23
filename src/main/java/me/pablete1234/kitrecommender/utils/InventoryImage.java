@@ -3,15 +3,30 @@ package me.pablete1234.kitrecommender.utils;
 import blue.strategic.parquet.Dehydrator;
 import blue.strategic.parquet.ValueWriter;
 import me.pablete1234.kitrecommender.utils.category.Category;
+import org.apache.parquet.schema.*;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
 
 import java.util.Arrays;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 
 public class InventoryImage {
     public static final int PLAYER_SIZE = 36;
+
+    public static final MessageType SCHEMA = new MessageType("inventory",
+            Stream.<Type>concat(
+                    Stream.of(
+                            Types.required(INT64).as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS)).named("time")),
+                    IntStream.range(0, PLAYER_SIZE)
+                            .mapToObj(i -> Types.required(INT32).named("slot_" + i))
+            ).collect(Collectors.toList()));
 
     private final long timestamp;
     private final int[] contents;

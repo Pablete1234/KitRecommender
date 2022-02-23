@@ -10,12 +10,11 @@ import tc.oc.pgm.kits.ApplyItemKitEvent;
 
 import java.io.File;
 import java.io.IOException;
+import java.time.Instant;
 import java.util.UUID;
 import java.util.logging.Level;
 
 public class DataCollectorKM implements KitModifier {
-
-    private static final MessageType schema = null;
 
     private final UUID player;
     private final KitModifier downstream;
@@ -24,8 +23,8 @@ public class DataCollectorKM implements KitModifier {
     public DataCollectorKM(UUID player, KitModifier downstream) throws IOException {
         this.player = player;
         this.downstream = downstream;
-        this.writer = ParquetWriter.writeFile(schema,
-                new File(player.toString() + ".parquet"),
+        this.writer = ParquetWriter.writeFile(InventoryImage.SCHEMA,
+                new File(Instant.now().toString() + "_" + player.toString() + ".parquet"),
                 InventoryImage.Serializer.INSTANCE);
     }
 
