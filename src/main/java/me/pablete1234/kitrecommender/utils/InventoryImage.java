@@ -1,5 +1,7 @@
 package me.pablete1234.kitrecommender.utils;
 
+import blue.strategic.parquet.Dehydrator;
+import blue.strategic.parquet.ValueWriter;
 import me.pablete1234.kitrecommender.utils.category.Category;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
@@ -11,34 +13,21 @@ import java.util.Arrays;
 public class InventoryImage {
     public static final int PLAYER_SIZE = 36;
 
+    private final long timestamp;
     private final int[] contents;
 
-    public InventoryImage(int[] contents) {
+    public InventoryImage(long timestamp, int[] contents) {
         if (contents.length != PLAYER_SIZE)
             throw new IllegalArgumentException("InventoryImage must have exactly " + PLAYER_SIZE + " items");
+        this.timestamp = timestamp;
         this.contents = contents;
     }
-
 
     public static InventoryImage from(PlayerInventory inventory) {
         int[] contents = new int[PLAYER_SIZE];
         for (int i = 0; i < PLAYER_SIZE; i++)
             contents[i] = serialize(inventory.getItem(i));
-        return new InventoryImage(contents);
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof InventoryImage)) return false;
-
-        InventoryImage that = (InventoryImage) o;
-        return Arrays.equals(contents, that.contents);
-    }
-
-    @Override
-    public int hashCode() {
-        return Arrays.hashCode(contents);
+        return new InventoryImage(System.currentTimeMillis(), contents);
     }
 
     @SuppressWarnings("deprecation")
@@ -69,6 +58,27 @@ public class InventoryImage {
             return is;
         } else {
             return new ItemStack(material, amount, (short) 0, data);
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        return this == o ||
+                (o instanceof InventoryImage && Arrays.equals(contents, ((InventoryImage) o).contents));
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(contents);
+    }
+
+    public static class Serializer implements Dehydrator<InventoryImage> {
+        public static final Serializer INSTANCE = new Serializer();
+        @Override
+        public void dehydrate(InventoryImage inventoryImage, ValueWriter valueWriter) {
+            valueWriter.write("timestamp", inventoryImage.timestamp);
+            for (int i = 0; i < PLAYER_SIZE; i++)
+                valueWriter.write("slot_" + i, inventoryImage.contents[i]);
         }
     }
 

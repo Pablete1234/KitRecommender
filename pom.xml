@@ -18,29 +18,41 @@
     <description>Plugin to automatically sort kits for the player</description>
 
     <repositories>
-        <repository>
+        <repository> <!-- needed for PGM -->
             <id>ashcon.app</id>
             <url>https://repo.ashcon.app/content/repositories/snapshots</url>
         </repository>
-        <repository>
+        <repository> <!-- needed for adventure -->
             <id>sonatype-oss</id>
             <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+        </repository>
+
+        <repository>
+            <id>jitpack.io</id>
+            <url>https://jitpack.io</url>
         </repository>
     </repositories>
 
 
     <dependencies>
         <dependency>
-            <groupId>tc.oc.pgm</groupId>
-            <artifactId>core</artifactId>
-            <version>0.12-SNAPSHOT</version>
+            <groupId>app.ashcon</groupId>
+            <artifactId>sportpaper</artifactId>
+            <version>1.8.8-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
+
         <dependency>
             <groupId>tc.oc.pgm</groupId>
-            <artifactId>util</artifactId>
-            <version>0.12-SNAPSHOT</version>
+            <artifactId>core</artifactId>
+            <version>0.13-SNAPSHOT</version>
             <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.strategicblue</groupId>
+            <artifactId>parquet-floor</artifactId>
+            <version>master-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
@@ -78,7 +90,6 @@
                 <artifactId>maven-shade-plugin</artifactId>
                 <version>2.3</version>
                 <configuration>
-                    <createDependencyReducedPom>true</createDependencyReducedPom>
                     <filters>
                         <filter>
                             <artifact>*:*</artifact>

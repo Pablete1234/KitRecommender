@@ -43,8 +43,8 @@ public class KitListener implements Listener {
 
     @EventHandler
     public void onClearKit(ApplyKitEvent event) {
-        if (!(event.getKit() instanceof ClearItemsKit)) return;
-        kitModifier.cleanKits(event.getPlayer().getId());
+        if (event.getKit() instanceof ClearItemsKit && ((ClearItemsKit) event.getKit()).clearsItems())
+            kitModifier.cleanKits(event.getPlayer().getId());
     }
 
     @EventHandler
