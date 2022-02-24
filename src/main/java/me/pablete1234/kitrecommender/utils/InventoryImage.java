@@ -5,44 +5,49 @@ import blue.strategic.parquet.ValueWriter;
 import me.pablete1234.kitrecommender.utils.category.Category;
 import org.apache.parquet.schema.*;
 import org.bukkit.Material;
+import org.bukkit.entity.HumanEntity;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
 
+import java.time.Instant;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
+import static org.apache.parquet.schema.LogicalTypeAnnotation.TimeUnit.MILLIS;
+import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.BOOLEAN;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT32;
 import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 
 public class InventoryImage {
     public static final int PLAYER_SIZE = 36;
 
-    public static final MessageType SCHEMA = new MessageType("inventory",
-            Stream.<Type>concat(
-                    Stream.of(
-                            Types.required(INT64).as(LogicalTypeAnnotation.timestampType(true, LogicalTypeAnnotation.TimeUnit.MILLIS)).named("time")),
-                    IntStream.range(0, PLAYER_SIZE)
-                            .mapToObj(i -> Types.required(INT32).named("slot_" + i))
-            ).collect(Collectors.toList()));
+    private static final LogicalTypeAnnotation timestampType = LogicalTypeAnnotation.timestampType(true, MILLIS);
 
-    private final long timestamp;
+    public static final MessageType SCHEMA = new MessageType("inventory", StreamUtil.append(
+            IntStream.range(0, PLAYER_SIZE)
+                    .mapToObj(i -> Types.required(INT32).named("slot_" + i)),
+            Types.required(INT64).as(timestampType).named("timestamp"),
+            Types.required(BOOLEAN).named("closed")
+    ).collect(Collectors.toList()));
+
     private final int[] contents;
+    private final long timestamp;
+    private final boolean closed;
 
-    public InventoryImage(long timestamp, int[] contents) {
-        if (contents.length != PLAYER_SIZE)
-            throw new IllegalArgumentException("InventoryImage must have exactly " + PLAYER_SIZE + " items");
-        this.timestamp = timestamp;
-        this.contents = contents;
+    public InventoryImage(HumanEntity pl, boolean closed) {
+        this(pl.getInventory(), closed);
     }
 
-    public static InventoryImage from(PlayerInventory inventory) {
-        int[] contents = new int[PLAYER_SIZE];
+    public InventoryImage(PlayerInventory inv, boolean closed) {
+        this.timestamp = Instant.now().toEpochMilli();
+        this.contents = new int[PLAYER_SIZE];
         for (int i = 0; i < PLAYER_SIZE; i++)
-            contents[i] = serialize(inventory.getItem(i));
-        return new InventoryImage(System.currentTimeMillis(), contents);
+            this.contents[i] = serialize(inv.getItem(i));
+
+        this.closed = closed;
     }
 
     @SuppressWarnings("deprecation")
@@ -58,7 +63,7 @@ public class InventoryImage {
         return material << 16 | amount << 8 | data;
     }
 
-    @SuppressWarnings("deprecation")
+    @SuppressWarnings({"deprecation", "unused"})
     public static ItemStack deserialize(int serialized) {
         short material = (short) (serialized >> 16 & 0xffff);
         byte amount    = (byte)  (serialized >> 8 & 0xff);
@@ -89,11 +94,13 @@ public class InventoryImage {
 
     public static class Serializer implements Dehydrator<InventoryImage> {
         public static final Serializer INSTANCE = new Serializer();
+
         @Override
-        public void dehydrate(InventoryImage inventoryImage, ValueWriter valueWriter) {
-            valueWriter.write("timestamp", inventoryImage.timestamp);
+        public void dehydrate(InventoryImage inv, ValueWriter valueWriter) {
             for (int i = 0; i < PLAYER_SIZE; i++)
-                valueWriter.write("slot_" + i, inventoryImage.contents[i]);
+                valueWriter.write("slot_" + i, inv.contents[i]);
+            valueWriter.write("timestamp", inv.timestamp);
+            valueWriter.write("closed", inv.closed);
         }
     }
 

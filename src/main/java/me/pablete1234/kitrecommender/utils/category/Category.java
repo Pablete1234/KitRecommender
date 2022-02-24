@@ -21,7 +21,6 @@ public interface Category {
         is.setData(is.getType().getNewData(data));
     }
 
-
     static ImmutableSet<Material> findMaterials(String ending) {
         return Arrays.stream(Material.values()).filter(m -> m.name().endsWith(ending))
                 .collect(CollectorUtil.toImmutableSet());

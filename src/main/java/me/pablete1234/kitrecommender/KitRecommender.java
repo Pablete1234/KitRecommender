@@ -26,10 +26,7 @@ public class KitRecommender extends JavaPlugin {
             try {
                 return new DataCollectorKM(pl, downstream);
             } catch (IOException e) {
-                Bukkit.getLogger().log(
-                        Level.WARNING,
-                        "Failed to create DataCollector for " + pl.toString(),
-                        e);
+                Bukkit.getLogger().log(Level.WARNING, "Failed to create DataCollector for " + pl, e);
                 return downstream;
             }
         };

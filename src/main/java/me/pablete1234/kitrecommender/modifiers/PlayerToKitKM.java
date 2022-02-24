@@ -46,6 +46,8 @@ public class PlayerToKitKM implements KitModifier {
 
     @Override
     public void cleanKits(UUID player) {
+        if (!this.player.equals(player))
+            throw new UnsupportedOperationException("Tried to cleanup a kit modifier for a different player.");
         appliedKits.clear();
     }
 

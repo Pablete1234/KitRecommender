@@ -1,7 +1,5 @@
 package me.pablete1234.kitrecommender.itf;
 
-import me.pablete1234.kitrecommender.itf.KitModifier;
-
 import java.util.UUID;
 
 /**
