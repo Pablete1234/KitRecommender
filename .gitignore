@@ -12,6 +12,7 @@
 
 # Package Files #
 target/
+dependency-reduced-pom.xml
 
 # Intellij idea files
 .idea/
