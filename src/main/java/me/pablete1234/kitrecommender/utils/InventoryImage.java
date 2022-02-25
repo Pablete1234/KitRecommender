@@ -3,10 +3,11 @@ package me.pablete1234.kitrecommender.utils;
 import blue.strategic.parquet.Dehydrator;
 import blue.strategic.parquet.ValueWriter;
 import me.pablete1234.kitrecommender.utils.category.Category;
-import org.apache.parquet.schema.*;
+import org.apache.parquet.schema.LogicalTypeAnnotation;
+import org.apache.parquet.schema.MessageType;
+import org.apache.parquet.schema.Types;
 import org.bukkit.Material;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.bukkit.material.MaterialData;
@@ -26,11 +27,10 @@ public class InventoryImage {
 
     private static final LogicalTypeAnnotation timestampType = LogicalTypeAnnotation.timestampType(true, MILLIS);
 
-    public static final MessageType SCHEMA = new MessageType("inventory", StreamUtil.append(
-            IntStream.range(0, PLAYER_SIZE)
-                    .mapToObj(i -> Types.required(INT32).named("slot_" + i)),
+    public static final MessageType SCHEMA = new MessageType("inventory", StreamUtil.prepend(
             Types.required(INT64).as(timestampType).named("timestamp"),
-            Types.required(BOOLEAN).named("closed")
+            Types.required(BOOLEAN).named("closed"),
+            IntStream.range(0, PLAYER_SIZE).mapToObj(i -> Types.required(INT32).named("slot_" + i))
     ).collect(Collectors.toList()));
 
     private final int[] contents;
@@ -43,15 +43,15 @@ public class InventoryImage {
 
     public InventoryImage(PlayerInventory inv, boolean closed) {
         this.timestamp = Instant.now().toEpochMilli();
+        this.closed = closed;
         this.contents = new int[PLAYER_SIZE];
         for (int i = 0; i < PLAYER_SIZE; i++)
             this.contents[i] = serialize(inv.getItem(i));
-
-        this.closed = closed;
     }
 
     @SuppressWarnings("deprecation")
     public static int serialize(ItemStack is) {
+        if (is == null) return 0;
         short material = (short) is.getTypeId();
         byte  amount   = (byte)  is.getAmount();
         byte  data     = 0;
@@ -96,11 +96,11 @@ public class InventoryImage {
         public static final Serializer INSTANCE = new Serializer();
 
         @Override
-        public void dehydrate(InventoryImage inv, ValueWriter valueWriter) {
+        public void dehydrate(InventoryImage inv, ValueWriter writer) {
+            writer.write("timestamp", inv.timestamp);
+            writer.write("closed", inv.closed);
             for (int i = 0; i < PLAYER_SIZE; i++)
-                valueWriter.write("slot_" + i, inv.contents[i]);
-            valueWriter.write("timestamp", inv.timestamp);
-            valueWriter.write("closed", inv.closed);
+                writer.write("slot_" + i, inv.contents[i]);
         }
     }
 
