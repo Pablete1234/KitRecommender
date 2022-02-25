@@ -37,7 +37,7 @@ public class GlobalToPlayerKM implements KitModifier {
     @Override
     public void learnPreferences(InventoryCloseEvent event) {
         MatchPlayer pl = PGM.get().getMatchManager().getPlayer(event.getPlayer());
-        if (pl == null || !pl.canInteract()) return; // Ignore observers
+        if (pl == null || !pl.canInteract() || !pl.getBukkit().willBeOnline()) return; // Ignore observers
 
         UUID player = event.getPlayer().getUniqueId();
         KitModifier km = playerKitModifiers.get(player);
