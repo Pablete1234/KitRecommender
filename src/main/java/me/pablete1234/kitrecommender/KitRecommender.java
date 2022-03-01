@@ -16,10 +16,11 @@ import java.util.logging.Level;
 
 public class KitRecommender extends JavaPlugin {
 
-    private static final boolean STORE_KITS = true;
-
     @Override
     public void onEnable() {
+        saveDefaultConfig();
+        KitConfig.setConfig(getConfig());
+
         Function<UUID, KitModifier> playerToKit = pl -> new PlayerToKitKM(pl, PlayerKitModel::new);
         Function<UUID, KitModifier> dataCollector = pl -> {
             KitModifier downstream = playerToKit.apply(pl);
@@ -30,7 +31,7 @@ public class KitRecommender extends JavaPlugin {
                 return downstream;
             }
         };
-        GlobalToPlayerKM globalToPlayer = new GlobalToPlayerKM(STORE_KITS ? dataCollector : playerToKit);
+        GlobalToPlayerKM globalToPlayer = new GlobalToPlayerKM(KitConfig.COLLECT_DATA ? dataCollector : playerToKit);
 
         KitListener listener = new KitListener(globalToPlayer);
         getServer().getPluginManager().registerEvents(listener, this);

@@ -1,6 +1,7 @@
 package me.pablete1234.kitrecommender.modifiers;
 
 import blue.strategic.parquet.ParquetWriter;
+import me.pablete1234.kitrecommender.KitConfig;
 import me.pablete1234.kitrecommender.itf.KitModifier;
 import me.pablete1234.kitrecommender.utils.InventoryImage;
 import org.bukkit.Bukkit;
@@ -8,10 +9,10 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import tc.oc.pgm.api.PGM;
 import tc.oc.pgm.kits.ApplyItemKitEvent;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.UUID;
@@ -22,7 +23,6 @@ import java.util.logging.Level;
 public class DataCollectorKM implements KitModifier {
 
     private static final DateTimeFormatter FILENAME_DATE = DateTimeFormatter.ofPattern("uuuu-MM-dd_HH-mm-ss");
-    private static final String FILE_FOLDER = "kit_data";
 
     private final ScheduledExecutorService syncExecutor = PGM.get().getExecutor();
     private final ScheduledExecutorService asyncExecutor = PGM.get().getAsyncExecutor();
@@ -36,9 +36,10 @@ public class DataCollectorKM implements KitModifier {
     public DataCollectorKM(UUID player, KitModifier downstream) throws IOException {
         this.player = player;
         this.downstream = downstream;
-        Path path = Paths.get(FILE_FOLDER, player.toString(), FILENAME_DATE.format(LocalDateTime.now()) + ".parquet");
-        Files.createDirectories(path.getParent());
-        this.writer = ParquetWriter.writeFile(InventoryImage.SCHEMA, path.toFile(), InventoryImage.Serializer.INSTANCE);
+        Path playerFolder = new File(KitConfig.KIT_DATA_FOLDER).toPath().resolve(player.toString());
+        Files.createDirectories(playerFolder);
+        Path file = playerFolder.resolve(FILENAME_DATE.format(LocalDateTime.now()) + ".parquet");
+        this.writer = ParquetWriter.writeFile(InventoryImage.SCHEMA, file.toFile(), InventoryImage.Serializer.INSTANCE);
     }
 
     @Override
