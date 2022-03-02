@@ -12,7 +12,7 @@
 
     <groupId>me.pablete1234</groupId>
     <artifactId>KitRecommender</artifactId>
-    <version>1.2</version>
+    <version>1.2.1</version>
 
     <name>KitRecommender</name>
     <description>Plugin to automatically sort kits for the player</description>

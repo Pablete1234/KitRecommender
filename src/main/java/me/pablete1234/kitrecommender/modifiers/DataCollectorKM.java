@@ -56,9 +56,10 @@ public class DataCollectorKM implements KitModifier {
     }
 
     @Override
-    public void learnPreferences(InventoryCloseEvent event) {
-        this.write(new InventoryImage(event.getPlayer(), true));
-        this.downstream.learnPreferences(event);
+    public boolean learnPreferences(InventoryCloseEvent event) {
+        boolean learnt = this.downstream.learnPreferences(event);
+        if (learnt) this.write(new InventoryImage(event.getPlayer(), true));
+        return learnt;
     }
 
     @Override
@@ -85,20 +86,24 @@ public class DataCollectorKM implements KitModifier {
 
     private void write(InventoryImage image) {
         asyncExecutor.execute(() -> {
-            try {
-                writer.write(image);
-            } catch (IOException e) {
-                Bukkit.getLogger().log(Level.WARNING, "Failed to write inventory image for player " + player, e);
+            synchronized(writer) {
+                try {
+                    writer.write(image);
+                } catch (IOException e) {
+                    Bukkit.getLogger().log(Level.WARNING, "Failed to write inventory image for player " + player, e);
+                }
             }
         });
     }
 
     private void close() {
         asyncExecutor.execute(() -> {
-            try {
-                writer.close();
-            } catch (IOException e) {
-                Bukkit.getLogger().log(Level.WARNING, "Failed to close parquet writer for player " + player, e);
+            synchronized(writer) {
+                try {
+                    writer.close();
+                } catch (IOException e) {
+                    Bukkit.getLogger().log(Level.WARNING, "Failed to close parquet writer for player " + player, e);
+                }
             }
         });
     }

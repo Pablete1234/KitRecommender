@@ -33,9 +33,9 @@ public class InventoryImage {
             IntStream.range(0, PLAYER_SIZE).mapToObj(i -> Types.required(INT32).named("slot_" + i))
     ).collect(Collectors.toList()));
 
-    private final int[] contents;
     private final long timestamp;
     private final boolean closed;
+    private final int[] contents;
 
     public InventoryImage(HumanEntity pl, boolean closed) {
         this(pl.getInventory(), closed);
@@ -79,6 +79,17 @@ public class InventoryImage {
         } else {
             return new ItemStack(material, amount, (short) 0, data);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "InventoryImage{" +
+                "timestamp=" + timestamp +
+                ", closed=" + closed +
+                ", contents=" + Arrays.stream(contents)
+                        .mapToObj(InventoryImage::deserialize)
+                        .collect(Collectors.toList()) +
+                '}';
     }
 
     @Override

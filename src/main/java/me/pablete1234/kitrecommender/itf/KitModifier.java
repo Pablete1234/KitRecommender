@@ -19,8 +19,9 @@ public interface KitModifier {
     /**
      * A player has closed their inventory, learn from their changes
      * @param event the event to learn from
+     * @return true if there was anything to learn from, false otherwise
      */
-    void learnPreferences(InventoryCloseEvent event);
+    boolean learnPreferences(InventoryCloseEvent event);
 
     /**
      * Clean what kits are applied to this player

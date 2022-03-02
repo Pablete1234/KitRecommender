@@ -60,7 +60,7 @@ public class PlayerKitModel implements SimpleKitModifier {
     }
 
     @Override
-    public void learnPreferences(InventoryCloseEvent event) {
+    public boolean learnPreferences(InventoryCloseEvent event) {
         assert event.getPlayer().getUniqueId().equals(player);
 
         PlayerInventory inventory = event.getPlayer().getInventory();
@@ -110,6 +110,7 @@ public class PlayerKitModel implements SimpleKitModifier {
             if (slotItems.containsKey(slot)) freeItems.add(item);
             else slotItems.put(slot, item);
         });
+        return true;
     }
 
     private ItemStack pollItem(PlayerInventory inventory,

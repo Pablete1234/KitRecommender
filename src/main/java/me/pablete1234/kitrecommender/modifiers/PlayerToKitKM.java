@@ -39,9 +39,11 @@ public class PlayerToKitKM implements KitModifier {
     }
 
     @Override
-    public void learnPreferences(InventoryCloseEvent event) {
+    public boolean learnPreferences(InventoryCloseEvent event) {
+        boolean learnt = false;
         for (KitModifier appliedKit : appliedKits)
-            appliedKit.learnPreferences(event);
+            learnt |= appliedKit.learnPreferences(event);
+        return learnt;
     }
 
     @Override
