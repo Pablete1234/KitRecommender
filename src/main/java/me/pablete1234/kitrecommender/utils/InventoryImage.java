@@ -25,6 +25,10 @@ import static org.apache.parquet.schema.PrimitiveType.PrimitiveTypeName.INT64;
 public class InventoryImage {
     public static final int PLAYER_SIZE = 36;
 
+    public static final int MATERIAL_MASK = 0xFFFF << 16;
+    public static final int AMOUNT_MASK = 0xFF << 8;
+    public static final int DATA_MASK = 0xFF;
+
     private static final LogicalTypeAnnotation timestampType = LogicalTypeAnnotation.timestampType(true, MILLIS);
 
     public static final MessageType SCHEMA = new MessageType("inventory", StreamUtil.prepend(
@@ -47,6 +51,17 @@ public class InventoryImage {
         this.contents = new int[PLAYER_SIZE];
         for (int i = 0; i < PLAYER_SIZE; i++)
             this.contents[i] = serialize(inv.getItem(i));
+    }
+
+    public int getItem(int slot) {
+        return contents[slot];
+    }
+
+    public boolean maybeContains(int item) {
+        int material = item & MATERIAL_MASK;
+        for (int content : contents)
+            if ((content & MATERIAL_MASK) == material) return true;
+        return false;
     }
 
     @SuppressWarnings("deprecation")
@@ -79,6 +94,12 @@ public class InventoryImage {
         } else {
             return new ItemStack(material, amount, (short) 0, data);
         }
+    }
+
+    @SuppressWarnings({"deprecation"})
+    public static Material getMaterial(int serialized) {
+        short material = (short) (serialized >> 16 & 0xffff);
+        return Material.getMaterial(material);
     }
 
     @Override
