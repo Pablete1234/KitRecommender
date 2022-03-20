@@ -25,4 +25,8 @@ public class StreamUtil {
         return Stream.concat(stream, Stream.of(obj));
     }
 
+    public static <T> Iterable<T> toIterable(Stream<T> stream) {
+        return stream::iterator;
+    }
+
 }

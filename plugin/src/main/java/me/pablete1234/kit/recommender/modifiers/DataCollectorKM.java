@@ -4,6 +4,7 @@ import blue.strategic.parquet.ParquetWriter;
 import me.pablete1234.kit.recommender.KitConfig;
 import me.pablete1234.kit.recommender.itf.KitModifier;
 import me.pablete1234.kit.util.InventoryImage;
+import me.pablete1234.kit.util.serialized.InventoryRecord;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import tc.oc.pgm.api.PGM;
@@ -29,7 +30,7 @@ public class DataCollectorKM implements KitModifier {
 
     private final UUID player;
     private final KitModifier downstream;
-    private final ParquetWriter<InventoryImage> writer;
+    private final ParquetWriter<InventoryRecord> writer;
 
     private final AtomicBoolean applyingKit = new AtomicBoolean(false);
 
@@ -39,7 +40,7 @@ public class DataCollectorKM implements KitModifier {
         Path playerFolder = new File(KitConfig.KIT_DATA_FOLDER).toPath().resolve(player.toString());
         Files.createDirectories(playerFolder);
         Path file = playerFolder.resolve(FILENAME_DATE.format(LocalDateTime.now()) + ".parquet");
-        this.writer = ParquetWriter.writeFile(InventoryImage.SCHEMA, file.toFile(), InventoryImage.Serializer.INSTANCE);
+        this.writer = ParquetWriter.writeFile(InventoryRecord.SCHEMA, file.toFile(), InventoryRecord.Serializer.INSTANCE);
     }
 
     @Override
@@ -49,7 +50,7 @@ public class DataCollectorKM implements KitModifier {
         // since they are deferred to the end of the tick
         if (this.applyingKit.compareAndSet(false, true)) {
             this.syncExecutor.execute(() -> {
-                this.write(new InventoryImage(event.getPlayer().getBukkit(), false));
+                this.write(new InventoryRecord(event.getPlayer().getBukkit(), false));
                 this.applyingKit.set(false);
             });
         }
@@ -58,7 +59,7 @@ public class DataCollectorKM implements KitModifier {
     @Override
     public boolean learnPreferences(InventoryCloseEvent event) {
         boolean learnt = this.downstream.learnPreferences(event);
-        if (learnt) this.write(new InventoryImage(event.getPlayer(), true));
+        if (learnt) this.write(new InventoryRecord(event.getPlayer(), true));
         return learnt;
     }
 
@@ -84,13 +85,13 @@ public class DataCollectorKM implements KitModifier {
         this.downstream.cleanup();
     }
 
-    private void write(InventoryImage image) {
+    private void write(InventoryRecord image) {
         asyncExecutor.execute(() -> {
             synchronized(writer) {
                 try {
                     writer.write(image);
                 } catch (IOException e) {
-                    Bukkit.getLogger().log(Level.WARNING, "Failed to write inventory image for player " + player, e);
+                    Bukkit.getLogger().log(Level.WARNING, "Failed to write inventory record for player " + player, e);
                 }
             }
         });

@@ -5,12 +5,18 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.kits.Slot;
 
+import java.time.Duration;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
 public class KitSorter<I, C, K> {
+
+    // Duration in which changes are always considered preferences, since application of the kit.
+    // Changes made within this period are uncontested and always considered intended
+    // For changes made outside the period, the replacement items are further checked.
+    public static final Duration PREFERENCE_DURATION = Duration.ofSeconds(15);
 
     public static final KitSorter<ItemStack, PlayerInventory, ItemKitWrapper> PGM = new KitSorter<>(new BukkitAdapter());
     public static final KitSorter<Integer, InventoryImage, InventoryImage> IMAGE = new KitSorter<>(new InventoryImageAdapter());

@@ -22,11 +22,6 @@ import java.util.UUID;
  */
 public class PlayerKitModel implements SimpleKitModifier {
 
-    // Duration in which changes are always considered preferences, since application of the kit.
-    // Changes made within this period are uncontested and always considered intended
-    // For changes made outside the period, the replacement items are further checked.
-    private static final Duration PREFERENCE_DURATION = Duration.ofSeconds(15);
-
     private final UUID player;
     private final ItemKitWrapper kit;
 
@@ -53,7 +48,7 @@ public class PlayerKitModel implements SimpleKitModifier {
         slotItems.forEach((slot, item) -> event.getSlotItems().put(slot, item.clone()));
         event.getFreeItems().clear();
         freeItems.forEach(item -> event.getFreeItems().add(item.clone()));
-        considerPreferenceUntil = Instant.now().plus(PREFERENCE_DURATION);
+        considerPreferenceUntil = Instant.now().plus(KitSorter.PREFERENCE_DURATION);
     }
 
     @Override
