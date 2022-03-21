@@ -5,12 +5,11 @@
     <parent>
         <artifactId>KitParent</artifactId>
         <groupId>me.pablete1234.kit</groupId>
-        <version>1.2.1</version>
+        <version>1.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>KitRecommender</artifactId>
-    <version>1.2.1</version>
 
     <name>KitRecommender</name>
     <description>Plugin to automatically sort kits for the player</description>
@@ -19,7 +18,7 @@
         <dependency>
             <groupId>me.pablete1234.kit</groupId>
             <artifactId>KitUtil</artifactId>
-            <version>1.2.1</version>
+            <version>1.3.0</version>
         </dependency>
     </dependencies>
 

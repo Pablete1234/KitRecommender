@@ -5,7 +5,7 @@
     <parent>
         <artifactId>KitParent</artifactId>
         <groupId>me.pablete1234.kit</groupId>
-        <version>1.2.1</version>
+        <version>1.3.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,10 +15,10 @@
         <dependency>
             <groupId>me.pablete1234.kit</groupId>
             <artifactId>KitUtil</artifactId>
-            <version>1.2.1</version>
+            <version>1.3.0</version>
         </dependency>
 
-        <!-- Set SportPaper & pgm scope to provided, plugin doesn't need bundling these-->
+        <!-- Set SportPaper & pgm scope to compile, standalone kit aggregator requires bundling them -->
         <dependency>
             <groupId>app.ashcon</groupId>
             <artifactId>sportpaper</artifactId>
