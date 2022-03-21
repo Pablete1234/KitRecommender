@@ -20,16 +20,20 @@ public class InvalidKitDataException extends Exception {
 
     public enum Reason {
         FAILED_READ("Failed to read file"),
-        FEW_RECORDS("File has too few records"),
-        SMALL_TIMEFRAME("File represents too small of a timeframe"),
+        TOO_FEW_RECORDS("File has too few records"),
         CORRUPTED_DATA("File includes corrupted records"),
         NO_KIT_GIVEN("No kit was given to the player"),
-        DIFFERING_KITS("The kits given were different thru the match");
+        SMALL_KIT_GIVEN("Given kit is too small to sort (single item)"),
+        DIFFERING_KITS("The kits given were different throughout the match");
 
         final String message;
 
         Reason(String message) {
             this.message = message;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 

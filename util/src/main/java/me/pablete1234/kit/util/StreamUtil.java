@@ -20,6 +20,16 @@ public class StreamUtil {
         return Stream.concat(Stream.of(o1, o2, o3, o4), stream);
     }
 
+    @SuppressWarnings("unchecked")
+    public static <T> Stream<T> concat(Object... objs) {
+        Stream<T> str = Stream.empty();
+        for (Object obj : objs) {
+            if (obj instanceof Stream) str = Stream.concat(str, (Stream<T>) obj);
+            else str = Stream.concat(str, Stream.of((T) obj));
+        }
+        return str;
+    }
+
     @SafeVarargs
     public static <T> Stream<T> append(Stream<T> stream, T... obj) {
         return Stream.concat(stream, Stream.of(obj));

@@ -19,7 +19,7 @@ public class Main {
             Pattern.compile("([a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8})");
 
     public static void main(String[] args) throws IOException {
-        DummyServer.setup();
+        new DummyServer();
 
         Path kitData = Paths.get("kit_data");
         Path output = kitData.resolve("aggregated");
@@ -39,20 +39,22 @@ public class Main {
             aggregator.aggregate();
 
             written += aggregator.getWritten();
-            aggregator.getIgnoredCount().forEach((reason, count) -> {
-                invalidCount.compute(reason, (k, v) -> v == null ? count : v + count);
-            });
+            aggregator.getIgnoredFiles().forEach((reason, count) ->
+                    invalidCount.compute(reason, (k, v) -> (v == null ? 0 : v) + count.size()));
         }
 
         long endTime = System.currentTimeMillis();
         double seconds = (endTime - startTime) / 1000.0;
+        double recordsPerSecond = Math.round(written * 10.0 / seconds) / 10.0;
 
-        System.out.println("");
-        System.out.println("");
-        System.out.println("Done! Wrote " + written + " records in " + seconds +
-                "s (" + (Math.round(written * 10 / seconds) / 10) + " records/s)");
-        System.out.println("Skipped records by reason: ");
-        invalidCount.forEach((reason, count) -> System.out.println("\t" + reason + ": " + count));
+        int skipped = invalidCount.values().stream().mapToInt(i -> i).sum();
+
+        System.out.println();
+        System.out.println("Done!");
+        System.out.println("\tWrote " + written + " records in " + seconds + "s (" + recordsPerSecond + " records/s)");
+        System.out.println("\tSkipped " + skipped + " records, reasons: ");
+        invalidCount.forEach((reason, count) ->
+                System.out.println("\t\t" + count + "\t-\t" + reason + "\t(" + reason.getMessage() + ")"));
     }
 
 

@@ -28,13 +28,12 @@ public class PlayerRecordResolver {
     private InventoryRecord kitRecord;
     private Map<Slot, Integer> items;
     private List<Integer> freeItems;
-    private final int[] kitInvItems = new int[InventoryImage.PLAYER_SIZE];
-    private final int[] bufferItems = new int[InventoryImage.PLAYER_SIZE];
+
+    private final KitBuffer originalKit = new KitBuffer();
+    private final KitBuffer newKit = new KitBuffer();
 
     public KitPreferenceRecord resolve(Iterator<InventoryRecord> iterator) throws InvalidKitDataException {
         cleanup(); // Make sure we start in a clean state
-        if (!iterator.hasNext())
-            throw new InvalidKitDataException(InvalidKitDataException.Reason.FEW_RECORDS);
 
         while (iterator.hasNext()) {
             InventoryRecord record = iterator.next();
@@ -44,32 +43,33 @@ public class PlayerRecordResolver {
             }
         }
 
-        // Consider a kit with just 1 or 2 items too trivial to sort
-        if (kitRecord == null || Arrays.stream(kitInvItems).filter(i -> i != 0).count() <= 2)
+        if (kitRecord == null)
             throw new InvalidKitDataException(InvalidKitDataException.Reason.NO_KIT_GIVEN);
 
+        // Consider a kit with just 1 item too trivial to sort
+        if (originalKit.emptySlots >= (InventoryImage.PLAYER_SIZE - 1))
+            throw new InvalidKitDataException(InvalidKitDataException.Reason.SMALL_KIT_GIVEN);
+
+        if (!iterator.hasNext())
+            throw new InvalidKitDataException(InvalidKitDataException.Reason.TOO_FEW_RECORDS);
+
         long lastRecord = 0, lastGivenKit = kitRecord.getTimestamp();
+        boolean edited = false;
 
         while (iterator.hasNext()) {
             InventoryRecord record = iterator.next();
             lastRecord = record.getTimestamp();
             if (record.isAppliedKit()) {
-                lastGivenKit = record.getTimestamp();
+                lastGivenKit = lastRecord;
 
-                copySortedWithoutAmount(record.getInventory(), bufferItems);
+                newKit.set(record.getInventory());
 
-                kitLoop:
-                for (int kitInvItem : kitInvItems) {
-                    for (int bufferItem : bufferItems) {
-                        if (kitInvItem == bufferItem) continue kitLoop;
-                    }
-
-                    System.out.println(kitRecord.getInventory().toString());
-                    System.out.println(record.getInventory().toString());
+                // Ignore the file if the new kit is missing some original items. Having more items is ok.
+                if (!newKit.contains(originalKit))
                     throw new InvalidKitDataException(InvalidKitDataException.Reason.DIFFERING_KITS);
-                }
                 continue;
             }
+            edited = true;
 
             boolean lateEdit = lastRecord - lastGivenKit > KitSorter.PREFERENCE_DURATION.toMillis();
             KitSorter.IMAGE.learnPreferences(record.getInventory(), kitRecord.getInventory(), items, freeItems, lateEdit);
@@ -78,14 +78,13 @@ public class PlayerRecordResolver {
         // Too few data, you barely were in that match
         Instant start = Instant.ofEpochMilli(kitRecord.getTimestamp());
         Instant end = Instant.ofEpochMilli(lastRecord);
-        if (start.until(end, ChronoUnit.SECONDS) < 30)
-            throw new InvalidKitDataException(InvalidKitDataException.Reason.SMALL_TIMEFRAME);
+        int timeframe = (int) start.until(end, ChronoUnit.SECONDS);
 
         InventoryImage kit = kitRecord.getInventory();
         InventoryImage preferences = resultInventory();
 
         cleanup();
-        return new KitPreferenceRecord(kit, preferences);
+        return new KitPreferenceRecord(timeframe, edited, kit, preferences);
     }
 
     private void setupKitRecord(InventoryRecord kitRecord) throws InvalidKitDataException {
@@ -100,15 +99,7 @@ public class PlayerRecordResolver {
             }
         }
         this.freeItems = new ArrayList<>();
-        copySortedWithoutAmount(kitRecord.getInventory(), this.kitInvItems);
-    }
-
-    private void copySortedWithoutAmount(InventoryImage image, int[] items) {
-        image.copyInto(items);
-        Arrays.sort(items);
-        for (int i = 0; i < items.length; i++) {
-            items[i] = items[i] & ~InventoryImage.AMOUNT_MASK;
-        }
+        this.originalKit.set(kitRecord.getInventory());
     }
 
     private void cleanup() {
@@ -133,6 +124,37 @@ public class PlayerRecordResolver {
             }
         }
         return new InventoryImage(contents);
+    }
+
+    private static class KitBuffer {
+        private final int[] items = new int[InventoryImage.PLAYER_SIZE];
+        private int emptySlots;
+
+        private void set(InventoryImage image) {
+            image.copyInto(items);
+            for (int i = 0; i < items.length; i++)
+                items[i] = items[i] & ~InventoryImage.AMOUNT_MASK;
+
+            Arrays.sort(items);
+            this.emptySlots = 0;
+            while (this.items[this.emptySlots] == 0) this.emptySlots++;
+        }
+
+        private boolean contains(KitBuffer other) {
+            int othIdx = other.emptySlots, thisIdx = emptySlots;
+            // If at any point our index becomes bigger than other index, we know
+            // we for sure do not contain all the items in the other buffer.
+            // eg: other index = 30, this index = 35, we have just 1 more item, but there are 6 remaining to be found.
+            if (othIdx < thisIdx) return false;
+
+            for (; othIdx < other.items.length; thisIdx++, othIdx++) {
+                while (items[thisIdx] != other.items[othIdx]) { // While items don't match, keep going to next item
+                    thisIdx++;
+                    if (othIdx < thisIdx) return false;
+                }
+            }
+            return true;
+        }
     }
 
 

@@ -10,6 +10,7 @@ import me.pablete1234.kit.util.serialized.KitPreferenceRecord;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
@@ -19,7 +20,8 @@ import java.util.stream.Collectors;
 public class PlayerRecordAggregator {
 
     private final Path playerFolder, outputFile;
-    private final Map<InvalidKitDataException.Reason, Integer> count = new EnumMap<>(InvalidKitDataException.Reason.class);
+    private final Map<InvalidKitDataException.Reason, List<String>> ignoredFiles =
+            new EnumMap<>(InvalidKitDataException.Reason.class);
     private int written;
 
     public PlayerRecordAggregator(Path playerFolder, Path outputFile) {
@@ -28,6 +30,7 @@ public class PlayerRecordAggregator {
     }
 
     public void aggregate() throws IOException {
+        System.out.print("\t");
         try (ParquetWriter<KitPreferenceRecord> writer = ParquetWriter.writeFile(KitPreferenceRecord.SCHEMA,
                 outputFile.toFile(), KitPreferenceRecord.Serializer.INSTANCE)) {
 
@@ -36,24 +39,27 @@ public class PlayerRecordAggregator {
             for (Path file : StreamUtil.toIterable(Files.list(playerFolder))) {
                 if (!Files.isRegularFile(file) || !file.toString().endsWith(".parquet")) continue;
                 KitPreferenceRecord kitPreference;
-
                 try {
-                    System.out.println("  Computing kit for " + file.getFileName());
                     Iterator<InventoryRecord> records = readRecords(file).iterator();
                     kitPreference = resolver.resolve(records);
+                    System.out.print(".");
                 } catch (InvalidKitDataException e) {
-                    System.out.println("    " + e.getMessage());
-                    count.compute(e.getReason(), (reason, old) -> old == null ? 1 : old + 1);
+                    System.out.print("x");
+                    ignoredFiles.computeIfAbsent(e.getReason(), r -> new ArrayList<>())
+                            .add(file.getFileName().toString());
                     continue;
                 }
                 writer.write(kitPreference);
                 written++;
             }
         }
+        System.out.println();
+        //ignoredFiles.forEach((reason, files) ->
+        //        System.out.println("\t" + reason + " (" + files.size() + "): " + files));
     }
 
-    public Map<InvalidKitDataException.Reason, Integer> getIgnoredCount() {
-        return count;
+    public Map<InvalidKitDataException.Reason, List<String>> getIgnoredFiles() {
+        return ignoredFiles;
     }
 
     public int getWritten() {

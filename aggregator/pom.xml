@@ -63,6 +63,20 @@
                                     <excludes>
                                         <exclude>META-INF/**</exclude>
                                         <exclude>**/*.html</exclude>
+                                        <exclude>**/*.txt</exclude>
+                                        <exclude>mojang-translations/**</exclude>
+                                        <exclude>com/mysql/**</exclude>
+                                        <exclude>org/sqlite/**</exclude>
+                                        <exclude>native/**/*sqlitejdbc.*</exclude>
+                                        <exclude>google/protobuf/**</exclude>
+                                    </excludes>
+                                </filter>
+                                <filter>
+                                    <artifact>tc.oc.pgm:*</artifact>
+                                    <excludes>
+                                        <exclude>META-INF/**</exclude>
+                                        <exclude>**/*.properties</exclude>
+                                        <exclude>**/*.yml</exclude>
                                     </excludes>
                                 </filter>
                                 <filter>
@@ -74,6 +88,11 @@
                                     </includes>
                                 </filter>
                             </filters>
+                            <transformers>
+                                <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>me.pablete1234.kit.aggregator.Main</mainClass>
+                                </transformer>
+                            </transformers>
                         </configuration>
                     </execution>
                 </executions>
@@ -96,7 +115,8 @@
                                 <option>-dontnote</option>
                                 <option>-dontwarn</option>
                                 <option>-keepattributes Signature</option>
-                                <option>-keep class me.pablete1234.kit.** { *; }</option>
+                                <option>-keep class me.pablete1234.kit.aggregator.** { *; }</option>
+                                <option>-keep class * extends org.bukkit.material.MaterialData { *; }</option>
                                 <option>-keep class org.apache.parquet.hadoop.codec.SnappyCodec { *; }</option>
                                 <option>-keep class org.apache.parquet.column.** { *; }</option>
                                 <option>-keepclassmembers,allowoptimization enum * {

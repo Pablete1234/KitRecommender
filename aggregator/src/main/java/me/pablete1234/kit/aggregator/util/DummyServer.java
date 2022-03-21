@@ -6,6 +6,7 @@ import net.minecraft.server.v1_8_R3.DispenserRegistry;
 import net.minecraft.server.v1_8_R3.PlayerList;
 import net.minecraft.server.v1_8_R3.PropertyManager;
 import org.bukkit.Bukkit;
+import org.bukkit.craftbukkit.libs.jline.console.ConsoleReader;
 import org.bukkit.craftbukkit.libs.joptsimple.OptionParser;
 import org.bukkit.craftbukkit.libs.joptsimple.OptionSet;
 import org.bukkit.craftbukkit.v1_8_R3.CraftServer;
@@ -25,7 +26,7 @@ import java.util.logging.Handler;
 
 public class DummyServer {
 
-    public static void setup() throws IOException {
+    public DummyServer() throws IOException {
         System.out.println("Setting up dummy minecraft server...");
         long start = System.currentTimeMillis();
 
@@ -58,7 +59,7 @@ public class DummyServer {
 
     static class Server extends DedicatedServer {
 
-        public Server() throws IOException{
+        public Server() throws IOException {
             super(new OptionParser() {{
                 this.accepts("config").withRequiredArg().ofType(File.class)
                         .defaultsTo(new File("server.properties"));
