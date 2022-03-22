@@ -132,12 +132,10 @@ public class PlayerRecordResolver {
 
         private void set(InventoryImage image) {
             image.copyInto(items);
-            for (int i = 0; i < items.length; i++)
-                items[i] = items[i] & ~InventoryImage.AMOUNT_MASK;
-
-            Arrays.sort(items);
             this.emptySlots = 0;
-            while (this.items[this.emptySlots] == 0) this.emptySlots++;
+            for (int i = 0; i < items.length; i++)
+                if ((items[i] = items[i] & ~InventoryImage.AMOUNT_MASK) == 0) emptySlots++;
+            Arrays.sort(items);
         }
 
         private boolean contains(KitBuffer other) {
