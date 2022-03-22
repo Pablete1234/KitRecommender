@@ -71,7 +71,7 @@ public class PlayerRecordAggregator {
             return ParquetReader
                     .streamContent(file.toFile(), InventoryRecord.Deserializer.SUPPLIER_INSTANCE)
                     .collect(Collectors.toList());
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new InvalidKitDataException(InvalidKitDataException.Reason.FAILED_READ, e);
         }
     }
