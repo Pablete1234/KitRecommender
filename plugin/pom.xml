@@ -20,6 +20,20 @@
             <artifactId>KitUtil</artifactId>
             <version>1.3.2</version>
         </dependency>
+
+        <dependency>
+            <groupId>app.ashcon</groupId>
+            <artifactId>sportpaper</artifactId>
+            <version>1.8.8-R0.1-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>tc.oc.pgm</groupId>
+            <artifactId>core</artifactId>
+            <version>0.13-SNAPSHOT</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
     <build>
