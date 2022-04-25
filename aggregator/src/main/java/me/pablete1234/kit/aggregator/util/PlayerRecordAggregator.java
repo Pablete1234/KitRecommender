@@ -6,6 +6,7 @@ import me.pablete1234.kit.aggregator.exception.InvalidKitDataException;
 import me.pablete1234.kit.util.StreamUtil;
 import me.pablete1234.kit.util.serialized.InventoryRecord;
 import me.pablete1234.kit.util.serialized.KitPreferenceRecord;
+import org.apache.parquet.column.ParquetProperties;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -31,8 +32,9 @@ public class PlayerRecordAggregator {
 
     public void aggregate() throws IOException {
         System.out.print("\t");
-        try (ParquetWriter<KitPreferenceRecord> writer = ParquetWriter.writeFile(KitPreferenceRecord.SCHEMA,
-                outputFile.toFile(), KitPreferenceRecord.Serializer.INSTANCE)) {
+        try (ParquetWriter<KitPreferenceRecord> writer = ParquetWriter
+                .builder(outputFile.toFile(), KitPreferenceRecord.SCHEMA, KitPreferenceRecord.Serializer.INSTANCE)
+                .withWriterVersion(ParquetProperties.WriterVersion.PARQUET_1_0).buildWriter()) {
 
             PlayerRecordResolver resolver = new PlayerRecordResolver();
 
