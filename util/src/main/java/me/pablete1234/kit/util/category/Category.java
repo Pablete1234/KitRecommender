@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
 import java.util.Arrays;
+import java.util.function.Predicate;
 
 public interface Category {
 
@@ -23,8 +24,11 @@ public interface Category {
     }
 
     static ImmutableSet<Material> findMaterials(String ending) {
-        return Arrays.stream(Material.values()).filter(m -> m.name().endsWith(ending))
-                .collect(CollectorUtil.toImmutableSet());
+        return findMaterials(m -> m.name().endsWith(ending));
+    }
+
+    static ImmutableSet<Material> findMaterials(Predicate<Material> test) {
+        return Arrays.stream(Material.values()).filter(test).collect(CollectorUtil.toImmutableSet());
     }
 
 }
