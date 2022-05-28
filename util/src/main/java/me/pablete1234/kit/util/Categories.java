@@ -36,9 +36,4 @@ public abstract class Categories {
         return CATEGORY_MAP.computeIfAbsent(mat, Item::new);
     }
 
-    public static boolean equal(Material m1, Material m2) {
-        if (m1 == null || m2 == null) return m1 == m2;
-        return of(m1).getAll().contains(m2);
-    }
-
 }

@@ -1,6 +1,7 @@
 package me.pablete1234.kit.util;
 
-import org.bukkit.Material;
+import me.pablete1234.kit.util.category.Category;
+import me.pablete1234.kit.util.model.KitPredictor;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.kits.Slot;
@@ -11,19 +12,29 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
-public class KitSorter<I, C, K> {
+/**
+ * @param <KI> Kit item, the item type used in kits
+ * @param <CI> Container item, item type used in containers
+ * @param <C> Container, the type of inventory used
+ * @param <K> Kit, the type of kit used
+ */
+public class KitSorter<K, C, KI, CI> {
 
     // Duration in which changes are always considered preferences, since application of the kit.
     // Changes made within this period are uncontested and always considered intended
     // For changes made outside the period, the replacement items are further checked.
     public static final Duration PREFERENCE_DURATION = Duration.ofSeconds(15);
 
-    public static final KitSorter<ItemStack, PlayerInventory, ItemKitWrapper> PGM = new KitSorter<>(new BukkitAdapter());
-    public static final KitSorter<Integer, InventoryImage, InventoryImage> IMAGE = new KitSorter<>(new InventoryImageAdapter());
+    public static final KitSorter<ItemKitWrapper, PlayerInventory, ItemStack, ItemStack> PGM =
+            new KitSorter<>(new BukkitAdapter());
+    public static final KitSorter<InventoryImage, InventoryImage, Integer, Integer> IMAGE =
+            new KitSorter<>(new InventoryImageAdapter());
+    public static final KitSorter<ItemKitWrapper, KitPredictor.CategorizedKit, ItemStack, Category> PREDICTOR =
+            new KitSorter<>(new PredictorAdapter());
 
-    private final Adapter<I, C, K> adapter;
+    private final Adapter<K, C, KI, CI> adapter;
 
-    public KitSorter(Adapter<I, C, K> adapter) {
+    public KitSorter(Adapter<K, C, KI, CI> adapter) {
         this.adapter = adapter;
     }
 
@@ -35,8 +46,8 @@ public class KitSorter<I, C, K> {
      * @param item The item in the player inventory
      * @return true if the items are similar, false otherwise
      */
-    public boolean areSimilar(I kit, I item) {
-        return item != null && adapter.areSimilar(kit, item);
+    public boolean areSimilar(KI kit, CI item) {
+        return kit != null && item != null && adapter.areSimilar(kit, item);
     }
 
     /**
@@ -56,19 +67,19 @@ public class KitSorter<I, C, K> {
      * @return true if {@param item} is probably a replacement for {@param kit},
      * false if we think this is a player preference difference.
      */
-    public boolean isReplacement(K kit, I kitItem, I item, boolean lateEdit) {
+    public boolean isReplacement(K kit, KI kitItem, CI item, boolean lateEdit) {
         if (item == null) return false;
-        Material m1 = adapter.getMaterial(kitItem), m2 = adapter.getMaterial(item);
+        Category c1 = adapter.getCategoryKI(kitItem), c2 = adapter.getCategoryCI(item);
 
         // If the material is the same, it's a good enough replacement. (eg: bow)
         // Or same category (eg: diamond sword replacing iron sword, or filled bucket replacing empty bucket)
-        if (m1 == m2 || Categories.equal(m1, m2)) return true;
+        if (c1 == c2) return true;
 
-        return lateEdit && adapter.doesntContain(kit, item);
+        return lateEdit && adapter.doesntContainCI(kit, item);
     }
 
     /**
-     * Performs the main logic of learning the preferences of the player, mutating
+     * Performs the main logic of applying the preferences of the player, mutating
      * {@param slotItems} and {@param freeItems} according to what they prefer.
      *
      * @param inventory The player inventory
@@ -77,20 +88,20 @@ public class KitSorter<I, C, K> {
      * @param freeItems The free items
      * @param lateEdit  If the edit is not shortly after the kit is given
      */
-    public void learnPreferences(C inventory,
+    public void applyPreferences(C inventory,
                                  K kit,
-                                 Map<Slot, I> slotItems,
-                                 List<I> freeItems,
+                                 Map<Slot, KI> slotItems,
+                                 List<KI> freeItems,
                                  boolean lateEdit) {
-        Map<Slot, I> potentiallyUnmapped = new HashMap<>();
+        Map<Slot, KI> potentiallyUnmapped = new HashMap<>();
 
         for (int i = 0; i < InventoryImage.PLAYER_SIZE; i++) {
-            I item = adapter.getItem(inventory, i);
+            CI item = adapter.getItem(inventory, i);
             Slot slot = Slot.Player.forIndex(i);
-            I current = slotItems.get(slot);
+            KI current = slotItems.get(slot);
 
             // No item, or item is not part of the kit. This is further checked later.
-            if (item == null || adapter.doesntContain(kit, item)) {
+            if (item == null || adapter.doesntContainCI(kit, item)) {
                 // An item in the kit exists for that slot, pollItem would not be able to find it if we
                 // just leave it here.
                 // The solution is to move the item to potentiallyUnmapped, and if nothing claims it, it will
@@ -103,10 +114,10 @@ public class KitSorter<I, C, K> {
             }
 
             // Item is already in the desired slot
-            if (areSimilar(item, current)) continue;
+            if (areSimilar(current, item)) continue;
 
             // Search, and pick-out the corresponding kit item
-            I kitItem = pollItem(inventory, slot, item, kit, slotItems, freeItems, potentiallyUnmapped, lateEdit);
+            KI kitItem = pollItem(inventory, slot, item, kit, slotItems, freeItems, potentiallyUnmapped, lateEdit);
             // Apparently the item isn't in the forward part of the kit, it may already have been mapped
             // and there are multiple items of the same type in the kit.
             if (kitItem == null) {
@@ -129,21 +140,21 @@ public class KitSorter<I, C, K> {
         });
     }
 
-    private I pollItem(C inventory,
-                       Slot currentSlot,
-                       I search,
-                       K kit,
-                       Map<Slot, I> slotItems,
-                       List<I> freeItems,
-                       Map<Slot, I> potentiallyUnmapped,
-                       boolean lateEdit) {
+    private KI pollItem(C inventory,
+                        Slot currentSlot,
+                        CI search,
+                        K kit,
+                        Map<Slot, KI> slotItems,
+                        List<KI> freeItems,
+                        Map<Slot, KI> potentiallyUnmapped,
+                        boolean lateEdit) {
 
-        Iterator<Map.Entry<Slot, I>> slotIt = slotItems.entrySet().iterator();
+        Iterator<Map.Entry<Slot, KI>> slotIt = slotItems.entrySet().iterator();
         while (slotIt.hasNext()) {
-            Map.Entry<Slot, I> entry = slotIt.next();
+            Map.Entry<Slot, KI> entry = slotIt.next();
             if (entry.getKey().getIndex() < currentSlot.getIndex()) continue;
 
-            I kitItem = entry.getValue();
+            KI kitItem = entry.getValue();
             // Ignore this match if an item also exists in the designated slot in the kit
             // This is to prevent moving an item that shouldn't need to be moved.
             if (!areSimilar(kitItem, search) ||
@@ -154,10 +165,10 @@ public class KitSorter<I, C, K> {
 
         slotIt = potentiallyUnmapped.entrySet().iterator();
         while (slotIt.hasNext()) {
-            Map.Entry<Slot, I> entry = slotIt.next();
-            I kitItem = entry.getValue();
+            Map.Entry<Slot, KI> entry = slotIt.next();
+            KI kitItem = entry.getValue();
             if (!areSimilar(kitItem, search) ||
-                    // Avoid moving an item from hot bar to pockets, if there's a loosely valid replacement in place
+                    // Avoid moving an item from hot bar to pocket, if there's a loosely valid replacement in place
                     (entry.getKey() instanceof Slot.Player.Hotbar && currentSlot instanceof Slot.Player.Pockets &&
                             isReplacement(kit, kitItem, adapter.getItem(inventory, entry.getKey()), lateEdit)))
                 continue;
@@ -166,9 +177,9 @@ public class KitSorter<I, C, K> {
             return kitItem;
         }
 
-        Iterator<I> itemIt = freeItems.iterator();
+        Iterator<KI> itemIt = freeItems.iterator();
         while (itemIt.hasNext()) {
-            I kitItem = itemIt.next();
+            KI kitItem = itemIt.next();
             if (!areSimilar(kitItem, search)) continue;
             itemIt.remove();
             return kitItem;
@@ -176,15 +187,17 @@ public class KitSorter<I, C, K> {
         return null;
     }
 
-    interface Adapter<I, C, K> {
+    interface Adapter<K, C, KI, CI> {
 
-        Material getMaterial(I item);
+        Category getCategoryKI(KI item);
 
-        boolean areSimilar(I kit, I item);
+        Category getCategoryCI(CI item);
 
-        I getItem(C container, int slot);
+        boolean areSimilar(KI kit, CI item);
 
-        default I getItem(C container, Slot slot) {
+        CI getItem(C container, int slot);
+
+        default CI getItem(C container, Slot slot) {
             return getItem(container, slot.getIndex());
         }
 
@@ -195,7 +208,9 @@ public class KitSorter<I, C, K> {
          * @param item the item to check
          * @return true if the item could be present in the kit, false if it definitely is not in the kit
          */
-        boolean maybeContains(K kit, I item);
+        boolean maybeContainsKI(K kit, KI item);
+
+        boolean maybeContainsCI(K kit, CI item);
 
         /**
          * Check if the item is definitely not present in the kit
@@ -203,16 +218,46 @@ public class KitSorter<I, C, K> {
          * @param item the item to check
          * @return true if the item is definitely not present in the kit, false if it could be present in the kit
          */
-        default boolean doesntContain(K kit, I item) {
-            return !maybeContains(kit, item);
+        default boolean doesntContainKI(K kit, KI item) {
+            return !maybeContainsKI(kit, item);
+        }
+
+        default boolean doesntContainCI(K kit, CI item) {
+            return !maybeContainsCI(kit, item);
         }
     }
 
-
-    private static class BukkitAdapter implements Adapter<ItemStack, PlayerInventory, ItemKitWrapper> {
+    interface SimpleAdapter<K, C, I> extends Adapter<K, C, I, I> {
         @Override
-        public Material getMaterial(ItemStack item) {
-            return item.getType();
+        default Category getCategoryKI(I item) {
+            return getCategory(item);
+        }
+
+        @Override
+        default Category getCategoryCI(I item) {
+            return getCategory(item);
+        }
+
+        Category getCategory(I item);
+
+        @Override
+        default boolean maybeContainsKI(K kit, I item) {
+            return maybeContains(kit, item);
+        }
+
+        @Override
+        default boolean maybeContainsCI(K kit, I item) {
+            return maybeContains(kit,item);
+        }
+
+        boolean maybeContains(K kit, I item);
+    }
+
+
+    private static class BukkitAdapter implements SimpleAdapter<ItemKitWrapper, PlayerInventory, ItemStack> {
+        @Override
+        public Category getCategory(ItemStack item) {
+            return Categories.of(item.getType());
         }
 
         @Override
@@ -234,11 +279,11 @@ public class KitSorter<I, C, K> {
         }
     }
 
-    public static class InventoryImageAdapter implements Adapter<Integer, InventoryImage, InventoryImage> {
+    public static class InventoryImageAdapter implements SimpleAdapter<InventoryImage, InventoryImage, Integer> {
 
         @Override
-        public Material getMaterial(Integer item) {
-            return InventoryImage.getMaterial(item);
+        public Category getCategory(Integer item) {
+            return Categories.of(InventoryImage.getMaterial(item));
         }
 
         @Override
@@ -262,6 +307,38 @@ public class KitSorter<I, C, K> {
         @Override
         public boolean maybeContains(InventoryImage kit, Integer item) {
             return kit.maybeContains(item);
+        }
+    }
+
+    public static class PredictorAdapter implements Adapter<ItemKitWrapper, KitPredictor.CategorizedKit, ItemStack, Category> {
+        @Override
+        public Category getCategoryKI(ItemStack item) {
+            return Categories.of(item.getType());
+        }
+
+        @Override
+        public Category getCategoryCI(Category item) {
+            return item;
+        }
+
+        @Override
+        public boolean areSimilar(ItemStack kit, Category item) {
+            return item.getAll().contains(kit.getType());
+        }
+
+        @Override
+        public Category getItem(KitPredictor.CategorizedKit container, int slot) {
+            return container.get(slot);
+        }
+
+        @Override
+        public boolean maybeContainsKI(ItemKitWrapper kit, ItemStack item) {
+            return kit.maybeContains(item);
+        }
+
+        @Override
+        public boolean maybeContainsCI(ItemKitWrapper kit, Category item) {
+            return kit.getSimplifiedItems().stream().anyMatch(item.getAll()::contains);
         }
     }
 

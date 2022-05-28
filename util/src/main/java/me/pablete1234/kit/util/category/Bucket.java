@@ -16,4 +16,9 @@ public class Bucket implements Category {
     public ImmutableSet<Material> getAll() {
         return materials;
     }
+
+    @Override
+    public String toString() {
+        return "BUCKET";
+    }
 }

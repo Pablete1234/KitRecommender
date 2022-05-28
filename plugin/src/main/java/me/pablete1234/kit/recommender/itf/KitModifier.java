@@ -25,12 +25,17 @@ public interface KitModifier {
 
     /**
      * Clean what kits are applied to this player
+     * This is called when a player dies, or their inventory gets cleared.
+     * Downstream kit modifiers should stop assuming the given player has any kits applied
+     *
      * @param player the player to clean
      */
     void cleanKits(UUID player);
 
     /**
      * The player has left the game, clean up everything
+     * This is called when a player leaves the game, or the match cycles to the next map.
+     *
      * @param player the leaving player
      */
     void cleanup(UUID player);

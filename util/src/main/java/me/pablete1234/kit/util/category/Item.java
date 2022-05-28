@@ -15,4 +15,9 @@ public class Item implements Category {
   public ImmutableSet<Material> getAll() {
     return ImmutableSet.of(material);
   }
+
+  @Override
+  public String toString() {
+    return material.toString();
+  }
 }

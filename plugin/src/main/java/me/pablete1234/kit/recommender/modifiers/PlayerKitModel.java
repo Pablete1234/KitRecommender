@@ -3,13 +3,13 @@ package me.pablete1234.kit.recommender.modifiers;
 import me.pablete1234.kit.recommender.itf.SimpleKitModifier;
 import me.pablete1234.kit.util.ItemKitWrapper;
 import me.pablete1234.kit.util.KitSorter;
+import me.pablete1234.kit.util.model.KitPredictor;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.kits.ApplyItemKitEvent;
 import tc.oc.pgm.kits.Slot;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -28,13 +28,18 @@ public class PlayerKitModel implements SimpleKitModifier {
     private final Map<Slot, ItemStack> slotItems;
     private final List<ItemStack>      freeItems;
 
+    private final KitPredictor predictor;
+
     private Instant considerPreferenceUntil = Instant.EPOCH;
 
-    public PlayerKitModel(UUID player, ItemKitWrapper kit) {
+    public PlayerKitModel(UUID player, ItemKitWrapper kit, KitPredictor predictor) {
         this.player = player;
         this.kit = kit;
+        this.predictor = predictor;
         this.slotItems = new HashMap<>(kit.getSlotItems());
         this.freeItems = new ArrayList<>(kit.getFreeItems());
+
+        predictor.predictKit(kit, slotItems, freeItems);
     }
 
     @Override
@@ -58,8 +63,12 @@ public class PlayerKitModel implements SimpleKitModifier {
         PlayerInventory inventory = event.getPlayer().getInventory();
         boolean lateEdit = Instant.now().isAfter(considerPreferenceUntil);
 
-        KitSorter.PGM.learnPreferences(inventory, kit, slotItems, freeItems, lateEdit);
+        KitSorter.PGM.applyPreferences(inventory, kit, slotItems, freeItems, lateEdit);
         return true;
     }
 
+    @Override
+    public void cleanup() {
+        predictor.learn(kit, slotItems, freeItems);
+    }
 }

@@ -61,11 +61,9 @@ public class InventoryImage {
         if (is == null) return 0;
         short material = (short) is.getTypeId();
         byte  amount   = (byte)  is.getAmount();
-        byte  data     = 0;
 
         Category cat = Categories.of(is.getType());
-        if (cat != null) data = cat.getData(is);
-        else if (is.getData().getClass() != MaterialData.class) data = is.getData().getData();
+        byte data = cat.getData(is);
 
         return material << 16 | amount << 8 | data;
     }
@@ -78,13 +76,9 @@ public class InventoryImage {
         Material type = Material.getMaterial(material);
         Category cat = Categories.of(type);
 
-        if (cat != null) {
-            ItemStack is = new ItemStack(material, amount);
-            cat.putData(is, data);
-            return is;
-        } else {
-            return new ItemStack(material, amount, (short) 0, data);
-        }
+        ItemStack is = new ItemStack(material, amount);
+        cat.putData(is, data);
+        return is;
     }
 
     public static Material getMaterial(int serialized) {

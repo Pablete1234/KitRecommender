@@ -1,2 +1,3 @@
 collect-data: true
 kit-data-folder: kit_data
+kit-model-folder: kit_models

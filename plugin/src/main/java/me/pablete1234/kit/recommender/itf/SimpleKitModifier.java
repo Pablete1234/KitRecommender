@@ -12,7 +12,9 @@ public interface SimpleKitModifier extends KitModifier {
     default void cleanKits(UUID player) {}
 
     @Override
-    default void cleanup(UUID player) {}
+    default void cleanup(UUID player) {
+        cleanup();
+    }
 
     @Override
     default void cleanup() {}

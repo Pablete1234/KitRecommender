@@ -72,7 +72,7 @@ public class PlayerRecordResolver {
             edited = true;
 
             boolean lateEdit = lastRecord - lastGivenKit > KitSorter.PREFERENCE_DURATION.toMillis();
-            KitSorter.IMAGE.learnPreferences(record.getInventory(), kitRecord.getInventory(), items, freeItems, lateEdit);
+            KitSorter.IMAGE.applyPreferences(record.getInventory(), kitRecord.getInventory(), items, freeItems, lateEdit);
         }
 
         // Too few data, you barely were in that match

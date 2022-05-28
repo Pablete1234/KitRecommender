@@ -3,3 +3,9 @@ description: ${project.description}
 main: me.pablete1234.kit.recommender.KitRecommender
 version: ${project.version} (git-${git.commit.id.abbrev})
 depend: [PGM]
+
+commands:
+  kitdata:
+    description: Show kit data for a player
+    usage: /kitdata [player]
+    permission: kitrecommender.kitdata
