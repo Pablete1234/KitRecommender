@@ -1,7 +1,9 @@
 package me.pablete1234.kit.util;
 
+import com.google.common.collect.ImmutableSet;
 import me.pablete1234.kit.util.category.Category;
 import me.pablete1234.kit.util.model.KitPredictor;
+import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.kits.Slot;
@@ -338,7 +340,10 @@ public class KitSorter<K, C, KI, CI> {
 
         @Override
         public boolean maybeContainsCI(ItemKitWrapper kit, Category item) {
-            return kit.getSimplifiedItems().stream().anyMatch(item.getAll()::contains);
+            ImmutableSet<Material> items = item.getAll();
+            for (Material mat : kit.getSimplifiedItems())
+                if (items.contains(mat)) return true;
+            return false;
         }
     }
 

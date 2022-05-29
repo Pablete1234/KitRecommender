@@ -15,6 +15,8 @@ import java.util.Map;
 public class CategorizedKitImpl implements KitPredictor.CategorizedKit {
     private final Category[] data = new Category[KIT_SIZE];
 
+    private Multiset<Category> multiset;
+
     public CategorizedKitImpl(Category[] cat) {
         System.arraycopy(cat, 0, data, 0, Math.min(cat.length, data.length));
     }
@@ -24,10 +26,14 @@ public class CategorizedKitImpl implements KitPredictor.CategorizedKit {
     }
 
     public Multiset<Category> toMultiset() {
-        Multiset<Category> categories = LinkedHashMultiset.create();
-        for (Category d : data)
-            if (d != null) categories.add(d);
-        return categories;
+        if (multiset == null) {
+            // Cache the multiset
+            this.multiset = LinkedHashMultiset.create();
+            for (Category d : data)
+                if (d != null) this.multiset.add(d);
+        }
+        // And return a copy (for mutability not to affect it)
+        return LinkedHashMultiset.create(multiset);
     }
 
     @Override

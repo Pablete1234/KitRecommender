@@ -15,7 +15,7 @@ public interface KitPredictor {
     default void predictKit(ItemKitWrapper kit,
                             Map<Slot, ItemStack> slotItems,
                             List<ItemStack> freeItems) {
-        CategorizedKit original = CategorizedKit.of(kit.getSlotItems());
+        CategorizedKit original = kit.asCategorized();
         CategorizedKit predicted = predictKit(original);
         // Same instance, no change. Categorized kit is immutable.
         if (predicted == original) return;
@@ -27,7 +27,7 @@ public interface KitPredictor {
                        Map<Slot, ItemStack> slotItems,
                        List<ItemStack> freeItems) {
         // Yes, free items are being thrown away... not much I can do about it
-        CategorizedKit original = CategorizedKit.of(kit.getSlotItems());
+        CategorizedKit original = kit.asCategorized();
         CategorizedKit modified = CategorizedKit.of(slotItems);
 
         learn(original, modified);

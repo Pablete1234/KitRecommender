@@ -3,6 +3,7 @@ package me.pablete1234.kit.util;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import me.pablete1234.kit.util.model.KitPredictor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import tc.oc.pgm.kits.ItemKit;
@@ -25,12 +26,14 @@ public class ItemKitWrapper {
 
     private final ItemKit kit;
     private final ImmutableSet<Material> simplified; // FIXME: Potentially use a bloom filter
+    private final KitPredictor.CategorizedKit categorized;
 
     private ItemKitWrapper(ItemKit kit) {
         this.kit = kit;
         this.simplified = Stream.concat(kit.getSlotItems().values().stream(), kit.getFreeItems().stream())
                 .map(ItemStack::getType)
                 .collect(CollectorUtil.toImmutableSet());
+        this.categorized = KitPredictor.CategorizedKit.of(kit.getSlotItems());
     }
 
     public ItemKit getKit() {
@@ -55,6 +58,10 @@ public class ItemKitWrapper {
 
     public boolean doesntContain(ItemStack is) {
         return !simplified.contains(is.getType());
+    }
+
+    public KitPredictor.CategorizedKit asCategorized() {
+        return categorized;
     }
 
 }

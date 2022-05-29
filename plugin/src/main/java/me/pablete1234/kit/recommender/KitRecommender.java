@@ -1,11 +1,10 @@
 package me.pablete1234.kit.recommender;
 
-import me.pablete1234.kit.recommender.modifiers.DataCollectorKM;
-import me.pablete1234.kit.recommender.modifiers.PlayerKitModel;
 import me.pablete1234.kit.recommender.itf.KitModifier;
+import me.pablete1234.kit.recommender.modifiers.DataCollectorKM;
 import me.pablete1234.kit.recommender.modifiers.GlobalToPlayerKM;
+import me.pablete1234.kit.recommender.modifiers.PlayerKitModel;
 import me.pablete1234.kit.recommender.modifiers.PlayerToKitKM;
-import me.pablete1234.kit.util.matrix.Row;
 import me.pablete1234.kit.util.model.KitPredictor;
 import me.pablete1234.kit.util.model.NaiveBayesPredictor3;
 import org.bukkit.Bukkit;
@@ -15,7 +14,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.event.HandlerList;
 import org.bukkit.plugin.java.JavaPlugin;
-import tc.oc.pgm.util.bukkit.OnlinePlayerMapAdapter;
 
 import java.io.IOException;
 import java.util.UUID;
