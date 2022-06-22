@@ -75,7 +75,7 @@ public class PredictorManager implements Listener {
                     }
                     data.put(cat, matrix);
                 }
-            } catch (IOException e) {
+            } catch (Exception e) {
                 Bukkit.getLogger().log(Level.WARNING, "Failed to read model for player " + player, e);
             }
         }

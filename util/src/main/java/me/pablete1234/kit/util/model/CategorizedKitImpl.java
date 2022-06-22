@@ -22,7 +22,10 @@ public class CategorizedKitImpl implements KitPredictor.CategorizedKit {
     }
 
     public CategorizedKitImpl(Map<Slot, ItemStack> kit) {
-        kit.forEach((s, i) -> data[s.getIndex()] = Categories.of(i.getType()));
+        kit.forEach((s, i) -> {
+            if (!s.isAuto() && s.getIndex() < KIT_SIZE)
+                data[s.getIndex()] = Categories.of(i.getType());
+        });
     }
 
     public Multiset<Category> toMultiset() {
