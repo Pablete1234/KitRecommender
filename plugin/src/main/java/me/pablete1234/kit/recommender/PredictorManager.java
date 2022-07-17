@@ -5,7 +5,7 @@ import me.pablete1234.kit.util.category.Category;
 import me.pablete1234.kit.util.matrix.Matrix;
 import me.pablete1234.kit.util.matrix.Row;
 import me.pablete1234.kit.util.model.KitPredictor;
-import me.pablete1234.kit.util.model.NaiveBayesPredictor3;
+import me.pablete1234.kit.util.model.NaiveBayesPredictor4;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -16,7 +16,6 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.jetbrains.annotations.Nullable;
 import tc.oc.pgm.api.PGM;
 
-import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.File;
@@ -45,9 +44,9 @@ public class PredictorManager implements Listener {
     public void onPlayerQuit(PlayerQuitEvent event) {
         KitPredictor p = predictors.remove(event.getPlayer().getUniqueId());
 
-        if (p instanceof NaiveBayesPredictor3) {
+        if (p instanceof NaiveBayesPredictor4) {
             UUID uuid = event.getPlayer().getUniqueId();
-            Map<Category, Matrix> chances = ((NaiveBayesPredictor3) p).getChances();
+            Map<Category, Matrix> chances = ((NaiveBayesPredictor4) p).getChances();
             asyncExecutor.execute(() -> savePredictor(uuid, chances));
         } else {
             Bukkit.getLogger().log(Level.WARNING, "Cannot save predictor model, not naive bayes type");
@@ -59,7 +58,7 @@ public class PredictorManager implements Listener {
     }
 
     private KitPredictor loadPredictor(UUID player) {
-        Path playerModel = new File(KitConfig.KIT_MODEL_FOLDER).toPath().resolve(player + ".bin");
+        Path playerModel = new File(KitConfig.KIT_MODEL_FOLDER).toPath().resolve(player + ".km4");
         Map<Category, Matrix> data = new HashMap<>();
 
         if (Files.exists(playerModel)) {
@@ -80,7 +79,7 @@ public class PredictorManager implements Listener {
             }
         }
 
-        return new NaiveBayesPredictor3(data);
+        return new NaiveBayesPredictor4(data);
     }
 
     private void savePredictor(UUID player, Map<Category, Matrix> data) {
@@ -90,7 +89,7 @@ public class PredictorManager implements Listener {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        Path playerModel = modelFolder.resolve(player + ".bin");
+        Path playerModel = modelFolder.resolve(player + ".km4");
 
         try (DataOutputStream dos = new DataOutputStream(Files.newOutputStream(playerModel, StandardOpenOption.CREATE))) {
             for (Map.Entry<Category, Matrix> entry : data.entrySet()) {

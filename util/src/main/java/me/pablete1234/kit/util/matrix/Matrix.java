@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Iterator;
 
 public class Matrix implements Iterable<Row> {
-    private final int ROWS = 10;
+    public final int ROWS = 10;
 
     private final Row[] data = new Row[ROWS];
 

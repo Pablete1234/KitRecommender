@@ -6,7 +6,8 @@ import org.jetbrains.annotations.NotNull;
 import java.util.PrimitiveIterator;
 
 public class Row implements Iterable<Double> {
-    private static final int ROW_LEN = 9;
+    public static final int ROW_LEN = 10;
+    public static final int POCKETS_IDX = 9; // Index for slot that holds pocket data (pocket = not hot bar)
 
     private final double[] data = new double[ROW_LEN];
     private double max = 0;
@@ -14,6 +15,7 @@ public class Row implements Iterable<Double> {
     private double total;
 
     public void set(int i, double value) {
+        if (i > POCKETS_IDX) i = POCKETS_IDX;
         double old = this.data[i];
         this.total = this.total - old + value;
         this.data[i] = value;
@@ -31,6 +33,7 @@ public class Row implements Iterable<Double> {
     }
 
     public void add(int i, double value) {
+        if (i > POCKETS_IDX) i = POCKETS_IDX;
         set(i, data[i] + value);
     }
 

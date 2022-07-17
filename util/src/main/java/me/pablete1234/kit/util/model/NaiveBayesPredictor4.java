@@ -13,11 +13,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-public class NaiveBayesPredictor3 implements KitPredictor {
+public class NaiveBayesPredictor4 implements KitPredictor {
 
     private final Map<Category, Matrix> chances;
 
-    public NaiveBayesPredictor3(Map<Category, Matrix> chances) {
+    public NaiveBayesPredictor4(Map<Category, Matrix> chances) {
         this.chances = chances;
     }
 
@@ -71,11 +71,19 @@ public class NaiveBayesPredictor3 implements KitPredictor {
             if (prediction[slot] != null)
                 throw new IllegalStateException("Tried to place two items in the same slot!");
 
-            prediction[slot] = cat;
-            if (bag.remove(cat, 1) <= 1) values.remove(cat);
-            if (slot < row.size()) {
+            // If the slot is above 10, we intentionally simply do not set it as a prediction.
+            // - If item is in hot bar, other items may take the spot. If no other item does, spot is kept.
+            // - If item not in hot bar, it'll likely stay where it is.
+            if (slot != Row.POCKETS_IDX) {
+                prediction[slot] = cat;
+                // Delete the "column" so nothing else tries to override this slot.
                 for (Row r : values.values()) r.set(slot, -1);
+            } else {
+                // Inventory slots, remove 1 from the category. Set to -1 if below 0.
+                double newVal = row.get(Row.POCKETS_IDX) - 1;
+                row.set(Row.POCKETS_IDX, newVal < 0 ? -1 : newVal);
             }
+            if (bag.remove(cat, 1) <= 1) values.remove(cat);
         }
 
         return CategorizedKit.of(prediction);
@@ -96,7 +104,7 @@ public class NaiveBayesPredictor3 implements KitPredictor {
 
         if (result.total() == 0) {
             // No preferences for this use-case, create dummy. Assume you WANT the default position(s).
-            for (int i = 0; i < result.size(); i++)
+            for (int i = 0; i < kit.size(); i++)
                 if (kit.get(i) == predict) result.add(i, 1);
         }
 
@@ -104,7 +112,7 @@ public class NaiveBayesPredictor3 implements KitPredictor {
     }
 
     public void learn(CategorizedKit kit, CategorizedKit preference) {
-        for (int i = 0; i < 9; i++) {
+        for (int i = 0; i < preference.size(); i++) {
             Category pi = preference.get(i);
             if (pi == null) continue;
 
@@ -115,7 +123,7 @@ public class NaiveBayesPredictor3 implements KitPredictor {
                 List<Integer> indexes = new ArrayList<>();
                 for (int idx = 0; idx < kit.size(); idx++) {
                     Category it = kit.get(idx);
-                    if (it == pi && it != preference.get(idx)) indexes.add(Math.min(idx, 9));
+                    if (it == pi && it != preference.get(idx)) indexes.add(idx);
                 }
                 double weight = 1d / indexes.size();
 
