@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<!--suppress XmlUnboundNsPrefix, XmlHighlighting -->
 <log4j:configuration debug="false">
     <!--Console appender -->
     <appender name="stdout" class="org.apache.log4j.ConsoleAppender">

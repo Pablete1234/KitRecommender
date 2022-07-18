@@ -55,6 +55,7 @@ public class Row implements Iterable<Double> {
         return maxIdx;
     }
 
+    @SuppressWarnings("SameReturnValue")
     public int size() {
         return ROW_LEN;
     }

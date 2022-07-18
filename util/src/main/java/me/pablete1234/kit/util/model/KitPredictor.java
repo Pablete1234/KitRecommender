@@ -49,6 +49,7 @@ public interface KitPredictor {
         Category get(int i);
         Multiset<Category> toMultiset();
 
+        @SuppressWarnings("SameReturnValue")
         default int size() {
             return KIT_SIZE;
         }

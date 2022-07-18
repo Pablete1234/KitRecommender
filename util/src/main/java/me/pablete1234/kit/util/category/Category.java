@@ -7,6 +7,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.material.MaterialData;
 
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.function.Predicate;
 
 public interface Category {
@@ -15,6 +16,7 @@ public interface Category {
 
     default byte getData(ItemStack is) {
         MaterialData md = is.getData();
+        //noinspection deprecation
         return md.getClass() == MaterialData.class ? 0 : md.getData();
     }
 
@@ -29,6 +31,10 @@ public interface Category {
 
     static ImmutableSet<Material> findMaterials(Predicate<Material> test) {
         return Arrays.stream(Material.values()).filter(test).collect(CollectorUtil.toImmutableSet());
+    }
+
+    default String toHumanString() {
+        return toString().toLowerCase(Locale.ROOT).replace("_", " ");
     }
 
 }

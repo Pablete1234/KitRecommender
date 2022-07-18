@@ -56,8 +56,6 @@ public class PlayerRecordAggregator {
             }
         }
         System.out.println();
-        //ignoredFiles.forEach((reason, files) ->
-        //        System.out.println("\t" + reason + " (" + files.size() + "): " + files));
     }
 
     public Map<InvalidKitDataException.Reason, List<String>> getIgnoredFiles() {

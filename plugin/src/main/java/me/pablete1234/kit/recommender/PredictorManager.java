@@ -64,6 +64,7 @@ public class PredictorManager implements Listener {
         if (Files.exists(playerModel)) {
             try (DataInputStream dis = new DataInputStream(Files.newInputStream(playerModel))) {
                 while (dis.available() > 0) {
+                    @SuppressWarnings("deprecation")
                     Category cat = Categories.of(Material.getMaterial(dis.readInt()));
 
                     Matrix matrix = new Matrix();
@@ -93,6 +94,7 @@ public class PredictorManager implements Listener {
 
         try (DataOutputStream dos = new DataOutputStream(Files.newOutputStream(playerModel, StandardOpenOption.CREATE))) {
             for (Map.Entry<Category, Matrix> entry : data.entrySet()) {
+                //noinspection deprecation
                 dos.writeInt(entry.getKey().getAll().iterator().next().getId());
                 for (Row row : entry.getValue()) for (double cell : row) dos.writeDouble(cell);
             }

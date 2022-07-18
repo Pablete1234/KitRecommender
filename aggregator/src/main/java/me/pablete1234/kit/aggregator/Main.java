@@ -16,7 +16,7 @@ import java.util.regex.Pattern;
 public class Main {
 
     private static final Pattern UUID_PATTERN =
-            Pattern.compile("([a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8})");
+            Pattern.compile("([a-f\\d]{8}(-[a-f\\d]{4}){4}[a-f\\d]{8})");
 
     public static void main(String[] args) throws IOException {
         new DummyServer();

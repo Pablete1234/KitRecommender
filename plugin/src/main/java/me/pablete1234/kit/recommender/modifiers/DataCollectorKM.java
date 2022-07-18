@@ -3,7 +3,6 @@ package me.pablete1234.kit.recommender.modifiers;
 import blue.strategic.parquet.ParquetWriter;
 import me.pablete1234.kit.recommender.KitConfig;
 import me.pablete1234.kit.recommender.itf.KitModifier;
-import me.pablete1234.kit.util.InventoryImage;
 import me.pablete1234.kit.util.serialized.InventoryRecord;
 import org.bukkit.Bukkit;
 import org.bukkit.event.inventory.InventoryCloseEvent;

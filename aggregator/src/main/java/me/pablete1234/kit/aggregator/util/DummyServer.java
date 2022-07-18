@@ -6,7 +6,6 @@ import net.minecraft.server.v1_8_R3.DispenserRegistry;
 import net.minecraft.server.v1_8_R3.PlayerList;
 import net.minecraft.server.v1_8_R3.PropertyManager;
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.libs.jline.console.ConsoleReader;
 import org.bukkit.craftbukkit.libs.joptsimple.OptionParser;
 import org.bukkit.craftbukkit.libs.joptsimple.OptionSet;
 import org.bukkit.craftbukkit.v1_8_R3.CraftServer;

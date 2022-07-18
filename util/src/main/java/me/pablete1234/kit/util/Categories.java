@@ -9,7 +9,6 @@ import me.pablete1234.kit.util.category.Tool;
 import me.pablete1234.kit.util.category.Weapon;
 import org.bukkit.Material;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.EnumMap;
 import java.util.Map;

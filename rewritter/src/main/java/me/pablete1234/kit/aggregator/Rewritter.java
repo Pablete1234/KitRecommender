@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 
 public class Rewritter {
 
-    private static final Pattern FILENAME_PATTERN = Pattern.compile("([a-f0-9]{8}(-[a-f0-9]{4}){4}[a-f0-9]{8}).parquet");
+    private static final Pattern FILENAME_PATTERN = Pattern.compile("([a-f\\d]{8}(-[a-f\\d]{4}){4}[a-f\\d]{8}).parquet");
 
     public static void main(String[] args) throws IOException {
         Path kitData = Paths.get("kit_data", "all");
