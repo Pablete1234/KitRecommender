@@ -273,7 +273,7 @@ public class KitSorter<K, C, KI, CI> {
 
         @Override
         public boolean maybeContains(ItemKitWrapper kit, ItemStack item) {
-            return kit.maybeContains(item);
+            return kit.getSimplifiedItems().contains(item);
         }
     }
 
@@ -346,7 +346,7 @@ public class KitSorter<K, C, KI, CI> {
 
         @Override
         public boolean maybeContainsKI(ItemKitWrapper kit, ItemStack item) {
-            return kit.maybeContains(item);
+            return kit.getSimplifiedItems().contains(item);
         }
 
         @Override

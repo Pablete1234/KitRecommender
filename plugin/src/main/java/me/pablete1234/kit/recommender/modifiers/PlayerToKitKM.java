@@ -12,9 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import tc.oc.pgm.api.player.MatchPlayer;
 import tc.oc.pgm.kits.ApplyItemKitEvent;
 import tc.oc.pgm.kits.ItemKit;
-import tc.oc.pgm.kits.Slot;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,7 +79,7 @@ public class PlayerToKitKM implements KitModifier {
     private PlayerKitModel createModel(ApplyItemKitEvent event) {
         MatchPlayer player = event.getPlayer();
 
-        ItemKitWrapper kit = ItemKitWrapper.of(event.getKit());
+        ItemKitWrapper.PGM kit = ItemKitWrapper.ofPGM(event.getKit());
         PlayerKitModel model = new PlayerKitModel(this.player, kit);
 
         List<ItemStack> displacedItems = event.getDisplacedItems();
@@ -105,8 +103,9 @@ public class PlayerToKitKM implements KitModifier {
         CategorizedKit original = condensedKit.asCategorized();
         CategorizedKit predicted = predictor.predictKit(original);
 
-        // Treat condensedKit as a model to put initial predictions on
-        KitSorter.PREDICTOR.applyPreferences(predicted, condensedKit, condensedKit.getSlotItems(), condensedKit.getFreeItems(), false);
+        // Treat condensedKit's slot items as a model to put predictions on
+        KitSorter.PREDICTOR.applyPreferences(
+                predicted, condensedKit, condensedKit.getSlotItems(), condensedKit.getFreeItems(), false);
 
 
         // The group of joint kits has one in which player had an empty inventory.
@@ -115,7 +114,7 @@ public class PlayerToKitKM implements KitModifier {
             cleanupPreviousKits(player, otherKits, condensedKit, displacedItems);
         }
 
-        // Treat condensedKit as if it was the players' inventory, and predict those movements on the other kits
+        // Treat condensedKit as if it was the players' inventory, and reflect those movements on the other kits
         KitSorter.KIT.applyPreferences(condensedKit, model.getKit(), model.getSlotItems(), model.getFreeItems(), false);
 
 

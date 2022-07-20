@@ -50,7 +50,7 @@ public class KitUtils {
         condensedItems.putAll(kit.getSlotItems());
         condensedFree.addAll(kit.getFreeItems());
 
-        return ItemKitWrapper.ofInventory(condensedItems, condensedFree);
+        return ItemKitWrapper.ofItems(condensedItems, condensedFree);
     }
 
 }

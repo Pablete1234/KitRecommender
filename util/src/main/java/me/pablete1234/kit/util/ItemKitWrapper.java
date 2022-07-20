@@ -1,5 +1,6 @@
 package me.pablete1234.kit.util;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import me.pablete1234.kit.util.model.KitPredictor;
 import org.bukkit.Material;
@@ -12,67 +13,97 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Stream;
 
-public class ItemKitWrapper {
-    private static final Map<ItemKit, ItemKitWrapper> instances = new HashMap<>();
+public interface ItemKitWrapper {
 
-    public static ItemKitWrapper of(ItemKit kit) {
-        return instances.computeIfAbsent(kit, ItemKitWrapper::new);
+    static ItemKitWrapper.PGM ofPGM(ItemKit kit) {
+        return PGM.instances.computeIfAbsent(kit, ItemKitWrapper.PGM::new);
     }
 
-    public static ItemKitWrapper ofInventory(Map<Slot, ItemStack> slotItems, List<ItemStack> freeItems) {
-        return new ItemKitWrapper(null, slotItems, freeItems);
+    static ItemKitWrapper ofItems(Map<Slot, ItemStack> slotItems, List<ItemStack> freeItems) {
+        return new Impl(slotItems, freeItems);
     }
 
-    public static void cleanup() {
-        instances.clear();
+    static void cleanup() {
+        PGM.instances.clear();
     }
 
-    private final ItemKit kit;
-    private final Map<Slot, ItemStack> slotItems;
-    private final List<ItemStack> freeItems;
-    private final ImmutableSet<Material> simplified; // FIXME: Potentially use a bloom filter
-    private final KitPredictor.CategorizedKit categorized;
+    Map<Slot, ItemStack> getSlotItems();
 
-    private ItemKitWrapper(ItemKit kit) {
-        this(kit, kit.getSlotItems(), kit.getFreeItems());
+    List<ItemStack> getFreeItems();
+
+    ImmutableSet<Material> getSimplifiedItems();
+
+    default KitPredictor.CategorizedKit asCategorized() {
+        return KitPredictor.CategorizedKit.of(getSlotItems());
     }
 
-    private ItemKitWrapper(ItemKit kit, Map<Slot, ItemStack> slotItems, List<ItemStack> freeItems) {
-        this.kit = kit;
-        this.slotItems = slotItems;
-        this.freeItems = freeItems;
-        this.simplified = Stream.concat(slotItems.values().stream(), freeItems.stream())
-                .map(ItemStack::getType)
-                .collect(CollectorUtil.toImmutableSet());
-        this.categorized = KitPredictor.CategorizedKit.of(slotItems);
+    class PGM implements ItemKitWrapper {
+        private static final Map<ItemKit, ItemKitWrapper.PGM> instances = new HashMap<>();
+
+        private final ItemKit kit;
+        private final ImmutableSet<Material> simplified;
+        private final KitPredictor.CategorizedKit categorized;
+
+        private PGM(ItemKit kit) {
+            this.kit = kit;
+            this.simplified = Impl.toSimplified(kit.getSlotItems(), kit.getFreeItems());
+            this.categorized = KitPredictor.CategorizedKit.of(kit.getSlotItems());
+        }
+
+        public ItemKit getPGMKit() {
+            return kit;
+        }
+
+        public ImmutableMap<Slot, ItemStack> getSlotItems() {
+            return kit.getSlotItems();
+        }
+
+        public List<ItemStack> getFreeItems() {
+            return kit.getFreeItems();
+        }
+
+        public ImmutableSet<Material> getSimplifiedItems() {
+            return simplified;
+        }
+
+
+        public KitPredictor.CategorizedKit asCategorized() {
+            return categorized;
+        }
+
     }
 
-    public ItemKit getPGMKit() {
-        return kit;
-    }
+    class Impl implements ItemKitWrapper {
+        private final Map<Slot, ItemStack> slotItems;
+        private final List<ItemStack> freeItems;
+        private final ImmutableSet<Material> simplified;
 
-    public Map<Slot, ItemStack> getSlotItems() {
-        return slotItems;
-    }
+        private Impl(Map<Slot, ItemStack> slotItems, List<ItemStack> freeItems) {
+            this.slotItems = slotItems;
+            this.freeItems = freeItems;
+            this.simplified = toSimplified(slotItems, freeItems);
+        }
 
-    public List<ItemStack> getFreeItems() {
-        return freeItems;
-    }
+        private static ImmutableSet<Material> toSimplified(Map<Slot, ItemStack> slotItems, List<ItemStack> freeItems) {
+            return Stream.concat(slotItems.values().stream(), freeItems.stream())
+                    .map(ItemStack::getType)
+                    .collect(CollectorUtil.toImmutableSet());
+        }
 
-    public ImmutableSet<Material> getSimplifiedItems() {
-        return simplified;
-    }
+        @Override
+        public Map<Slot, ItemStack> getSlotItems() {
+            return slotItems;
+        }
 
-    public boolean maybeContains(ItemStack is) {
-        return simplified.contains(is.getType());
-    }
+        @Override
+        public List<ItemStack> getFreeItems() {
+            return freeItems;
+        }
 
-    public boolean doesntContain(ItemStack is) {
-        return !simplified.contains(is.getType());
-    }
-
-    public KitPredictor.CategorizedKit asCategorized() {
-        return categorized;
+        @Override
+        public ImmutableSet<Material> getSimplifiedItems() {
+            return simplified;
+        }
     }
 
 }

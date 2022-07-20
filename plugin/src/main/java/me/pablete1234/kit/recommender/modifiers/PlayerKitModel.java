@@ -25,7 +25,7 @@ import java.util.UUID;
 public class PlayerKitModel implements SimpleKitModifier {
 
     private final UUID player;
-    private final ItemKitWrapper kit;
+    private final ItemKitWrapper.PGM kit;
 
     private final Map<Slot, ItemStack> slotItems;
     private final List<ItemStack>      freeItems;
@@ -37,14 +37,14 @@ public class PlayerKitModel implements SimpleKitModifier {
 
     private Instant considerPreferenceUntil = Instant.EPOCH;
 
-    public PlayerKitModel(UUID player, ItemKitWrapper kit) {
+    public PlayerKitModel(UUID player, ItemKitWrapper.PGM kit) {
         this.player = player;
         this.kit = kit;
         this.slotItems = new HashMap<>(kit.getSlotItems());
         this.freeItems = new ArrayList<>(kit.getFreeItems());
     }
 
-    public ItemKitWrapper getKit() {
+    public ItemKitWrapper.PGM getKit() {
         return kit;
     }
 
