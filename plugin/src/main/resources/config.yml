@@ -1,3 +1,4 @@
 collect-data: true
 kit-data-folder: kit_data
+predict-kits: true
 kit-models-folder: kit_models

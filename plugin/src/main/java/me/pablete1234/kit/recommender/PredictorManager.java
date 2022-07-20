@@ -6,6 +6,7 @@ import me.pablete1234.kit.util.matrix.Matrix;
 import me.pablete1234.kit.util.matrix.Row;
 import me.pablete1234.kit.util.model.KitPredictor;
 import me.pablete1234.kit.util.model.NaiveBayesPredictor4;
+import me.pablete1234.kit.util.model.NoOpKitPredictor;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.event.EventHandler;
@@ -31,11 +32,13 @@ import java.util.logging.Level;
 
 public class PredictorManager implements Listener {
 
+    private final NoOpKitPredictor noopPredictor = new NoOpKitPredictor();
     private final Map<UUID, KitPredictor> predictors = new HashMap<>();
     private final ScheduledExecutorService asyncExecutor = PGM.get().getAsyncExecutor();
 
     @EventHandler(priority = EventPriority.LOWEST)
     public void onPlayerJoin(AsyncPlayerPreLoginEvent event) {
+        if (!KitConfig.PREDICT_KITS) return;
         UUID player = event.getUniqueId();
         predictors.put(player, loadPredictor(player));
     }
@@ -43,6 +46,7 @@ public class PredictorManager implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onPlayerQuit(PlayerQuitEvent event) {
         KitPredictor p = predictors.remove(event.getPlayer().getUniqueId());
+        if (!KitConfig.PREDICT_KITS) return;
 
         if (p instanceof NaiveBayesPredictor4) {
             UUID uuid = event.getPlayer().getUniqueId();
@@ -54,7 +58,7 @@ public class PredictorManager implements Listener {
     }
 
     public @Nullable KitPredictor getPredictor(UUID player) {
-        return predictors.get(player);
+        return predictors.getOrDefault(player, noopPredictor);
     }
 
     private KitPredictor loadPredictor(UUID player) {
