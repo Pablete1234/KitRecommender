@@ -5,7 +5,7 @@
     <parent>
         <artifactId>KitParent</artifactId>
         <groupId>me.pablete1234.kit</groupId>
-        <version>1.5.0</version>
+        <version>1.5.1</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -15,7 +15,7 @@
         <dependency>
             <groupId>me.pablete1234.kit</groupId>
             <artifactId>KitUtil</artifactId>
-            <version>1.5.0</version>
+            <version>1.5.1</version>
         </dependency>
 
         <!-- Set SportPaper & pgm scope to compile, standalone kit aggregator requires bundling them -->
@@ -29,7 +29,7 @@
         <dependency>
             <groupId>tc.oc.pgm</groupId>
             <artifactId>core</artifactId>
-            <version>0.13-SNAPSHOT</version>
+            <version>0.14-SNAPSHOT</version>
             <scope>compile</scope>
         </dependency>
     </dependencies>

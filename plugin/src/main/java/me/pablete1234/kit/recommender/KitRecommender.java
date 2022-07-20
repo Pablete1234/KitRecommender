@@ -3,7 +3,6 @@ package me.pablete1234.kit.recommender;
 import me.pablete1234.kit.recommender.itf.KitModifier;
 import me.pablete1234.kit.recommender.modifiers.DataCollectorKM;
 import me.pablete1234.kit.recommender.modifiers.GlobalToPlayerKM;
-import me.pablete1234.kit.recommender.modifiers.PlayerKitModel;
 import me.pablete1234.kit.recommender.modifiers.PlayerToKitKM;
 import me.pablete1234.kit.recommender.util.CommandHandler;
 import org.bukkit.Bukkit;
@@ -17,15 +16,15 @@ import java.util.logging.Level;
 
 public class KitRecommender extends JavaPlugin {
 
-    private PredictorManager predictors;
-
     @Override
     public void onEnable() {
         saveDefaultConfig();
         KitConfig.setConfig(getConfig());
 
-        Function<UUID, KitModifier> playerToKit = pl -> new PlayerToKitKM(pl, predictors.getPredictor(pl), PlayerKitModel::new);
-        Function<UUID, KitModifier> dataCollector = pl -> {
+        PredictorManager predictors = new PredictorManager();
+
+        Function<UUID, KitModifier> playerToKit = pl -> new PlayerToKitKM(pl, predictors.getPredictor(pl));
+        GlobalToPlayerKM globalToPlayer = new GlobalToPlayerKM(KitConfig.COLLECT_DATA ? pl -> {
             KitModifier downstream = playerToKit.apply(pl);
             try {
                 return new DataCollectorKM(pl, downstream);
@@ -33,13 +32,10 @@ public class KitRecommender extends JavaPlugin {
                 Bukkit.getLogger().log(Level.WARNING, "Failed to create DataCollector for " + pl, e);
                 return downstream;
             }
-        };
-        GlobalToPlayerKM globalToPlayer = new GlobalToPlayerKM(KitConfig.COLLECT_DATA ? dataCollector : playerToKit);
+        } : playerToKit);
 
         KitListener listener = new KitListener(globalToPlayer);
         getServer().getPluginManager().registerEvents(listener, this);
-
-        predictors = new PredictorManager();
         getServer().getPluginManager().registerEvents(predictors, this);
 
         CommandHandler commandHandler = new CommandHandler(predictors);

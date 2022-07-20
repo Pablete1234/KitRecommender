@@ -15,10 +15,10 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * @param <K> Kit, the type of kit used
+ * @param <C> Container, the type of inventory used
  * @param <KI> Kit item, the item type used in kits
  * @param <CI> Container item, item type used in containers
- * @param <C> Container, the type of inventory used
- * @param <K> Kit, the type of kit used
  */
 public class KitSorter<K, C, KI, CI> {
 
@@ -28,7 +28,9 @@ public class KitSorter<K, C, KI, CI> {
     public static final Duration PREFERENCE_DURATION = Duration.ofSeconds(15);
 
     public static final KitSorter<ItemKitWrapper, PlayerInventory, ItemStack, ItemStack> PGM =
-            new KitSorter<>(new BukkitAdapter());
+            new KitSorter<>(new PGMAdapter());
+    public static final KitSorter<ItemKitWrapper, ItemKitWrapper, ItemStack, ItemStack> KIT =
+            new KitSorter<>(new KitAdapter());
     public static final KitSorter<InventoryImage, InventoryImage, Integer, Integer> IMAGE =
             new KitSorter<>(new InventoryImageAdapter());
     public static final KitSorter<ItemKitWrapper, KitPredictor.CategorizedKit, ItemStack, Category> PREDICTOR =
@@ -255,8 +257,7 @@ public class KitSorter<K, C, KI, CI> {
         boolean maybeContains(K kit, I item);
     }
 
-
-    private static class BukkitAdapter implements SimpleAdapter<ItemKitWrapper, PlayerInventory, ItemStack> {
+    private static abstract class BukkitAdapter<I> implements SimpleAdapter<ItemKitWrapper, I, ItemStack> {
         @Override
         public Category getCategory(ItemStack item) {
             return Categories.of(item.getType());
@@ -271,13 +272,23 @@ public class KitSorter<K, C, KI, CI> {
         }
 
         @Override
+        public boolean maybeContains(ItemKitWrapper kit, ItemStack item) {
+            return kit.maybeContains(item);
+        }
+    }
+
+
+    private static class PGMAdapter extends BukkitAdapter<PlayerInventory> {
+        @Override
         public ItemStack getItem(PlayerInventory container, int slot) {
             return container.getItem(slot);
         }
+    }
 
+    private static class KitAdapter extends BukkitAdapter<ItemKitWrapper> {
         @Override
-        public boolean maybeContains(ItemKitWrapper kit, ItemStack item) {
-            return kit.maybeContains(item);
+        public ItemStack getItem(ItemKitWrapper ik, int slot) {
+            return ik.getSlotItems().get(Slot.Player.forIndex(slot));
         }
     }
 
