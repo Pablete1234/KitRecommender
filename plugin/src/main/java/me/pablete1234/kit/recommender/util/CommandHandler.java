@@ -93,7 +93,7 @@ public class CommandHandler implements CommandExecutor {
                     .append(MatrixUtil.toComponent(m, false)).build();
         }).collect(Collectors.toList());
 
-        Audience.get(target).openBook(Book.builder()
+        Audience.get(sender).openBook(Book.builder()
                 .author(text("Kit Recommender"))
                 .addPage(overview.build())
                 .pages(pages)
