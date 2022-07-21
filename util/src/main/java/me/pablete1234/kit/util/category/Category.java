@@ -10,6 +10,12 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.function.Predicate;
 
+/**
+ * Represents a category of item, eg: swords, blocks, buckets.
+ * The idea is a player will treat all items of the same category similarly, different
+ * implementations of the interface exist for the different categories.
+ * See {@link me.pablete1234.kit.util.Categories}
+ */
 public interface Category {
 
     ImmutableSet<Material> getAll();

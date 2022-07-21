@@ -273,7 +273,7 @@ public class KitSorter<K, C, KI, CI> {
 
         @Override
         public boolean maybeContains(ItemKitWrapper kit, ItemStack item) {
-            return kit.getSimplifiedItems().contains(item);
+            return kit.getMaterials().contains(item.getType());
         }
     }
 
@@ -346,13 +346,13 @@ public class KitSorter<K, C, KI, CI> {
 
         @Override
         public boolean maybeContainsKI(ItemKitWrapper kit, ItemStack item) {
-            return kit.getSimplifiedItems().contains(item);
+            return kit.getMaterials().contains(item);
         }
 
         @Override
         public boolean maybeContainsCI(ItemKitWrapper kit, Category item) {
             ImmutableSet<Material> items = item.getAll();
-            for (Material mat : kit.getSimplifiedItems())
+            for (Material mat : kit.getMaterials())
                 if (items.contains(mat)) return true;
             return false;
         }

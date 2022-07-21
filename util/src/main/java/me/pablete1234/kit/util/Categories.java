@@ -13,6 +13,9 @@ import org.jetbrains.annotations.NotNull;
 import java.util.EnumMap;
 import java.util.Map;
 
+/**
+ * Utility holding the different Categories, and resolving a category for a certain material
+ */
 public abstract class Categories {
 
     private static final Map<Material, Category> CATEGORY_MAP = new EnumMap<>(Material.class);
@@ -31,6 +34,12 @@ public abstract class Categories {
         for (Material mat : category.getAll()) CATEGORY_MAP.putIfAbsent(mat, category);
     }
 
+    /**
+     * Get a category for the input material provided.
+     * If one does not exist a new one specifically for that item is created at runtime.
+     * @param mat the material to get a category for
+     * @return the category for the material
+     */
     public static @NotNull Category of(Material mat) {
         return CATEGORY_MAP.computeIfAbsent(mat, Item::new);
     }

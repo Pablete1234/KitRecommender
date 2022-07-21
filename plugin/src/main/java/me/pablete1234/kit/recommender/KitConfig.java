@@ -11,7 +11,7 @@ public class KitConfig {
     public static void setConfig(FileConfiguration config) {
         COLLECT_DATA = config.getBoolean("collect-data", COLLECT_DATA);
         KIT_DATA_FOLDER = config.getString("kit-data-folder", KIT_DATA_FOLDER);
-        PREDICT_KITS = config.getBoolean("predict-kits", COLLECT_DATA);
+        PREDICT_KITS = config.getBoolean("predict-kits", PREDICT_KITS);
         KIT_MODEL_FOLDER = config.getString("kit-models-folder", KIT_MODEL_FOLDER);
     }
 }
