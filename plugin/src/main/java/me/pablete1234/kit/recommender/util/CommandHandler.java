@@ -122,7 +122,7 @@ public class CommandHandler implements CommandExecutor {
         TextComponent pageComponent = text(cat, NamedTextColor.DARK_PURPLE)
                 .append(newline())
                 .append(newline())
-                .append(MatrixUtil.toComponent(m, false));
+                .append(MatrixUtil.toComponent(m, false).color(NamedTextColor.BLACK));
 
         return new AbstractMap.SimpleEntry<>(indexComponent, pageComponent);
     }
