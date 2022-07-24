@@ -6,7 +6,7 @@
 
     <groupId>me.pablete1234.kit</groupId>
     <artifactId>KitParent</artifactId>
-    <version>1.5.2</version>
+    <version>1.5.3</version>
     <packaging>pom</packaging>
 
     <properties>

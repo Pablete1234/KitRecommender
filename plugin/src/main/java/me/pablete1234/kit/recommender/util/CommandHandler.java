@@ -15,12 +15,22 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandException;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Arrow;
 import org.bukkit.entity.Player;
 import tc.oc.pgm.util.Audience;
 
+import java.util.AbstractMap;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static net.kyori.adventure.text.Component.newline;
@@ -74,31 +84,47 @@ public class CommandHandler implements CommandExecutor {
         overview.append(text(target.getName(target) + "'s kits:", NamedTextColor.GOLD));
         overview.append(newline());
 
-        List<Component> pages = nbp.getChances().entrySet().stream().sorted(COMPARATOR).map(e -> {
-            String cat = e.getKey().toHumanString();
-            Matrix m = e.getValue();
+        Map.Entry<List<Component>, List<Component>> categories = nbp.getChances().entrySet()
+                .stream()
+                .sorted(COMPARATOR)
+                .map(e -> renderCategory(e.getKey(), e.getValue()))
+                .collect(() -> new AbstractMap.SimpleEntry<>(new ArrayList<>(), new ArrayList<>()),
+                        (acc, entry) -> {
+                            acc.getKey().add(entry.getKey());
+                            acc.getValue().add(entry.getValue());
+                        },
+                        (e1, e2) -> {
+                            e1.getKey().addAll(e2.getKey());
+                            e1.getValue().addAll(e2.getValue());
+                        });
 
-            overview.append(text()
-                            .append(text(cat, NamedTextColor.DARK_AQUA))
-                            .hoverEvent(showText(text()
-                                    .append(text(cat + " matrix:\n", NamedTextColor.DARK_PURPLE))
-                                    .append(MatrixUtil.toComponent(m, true))
-                                    .build())))
-                    .append(newline());
-
-            return text()
-                    .append(text(cat, NamedTextColor.DARK_PURPLE))
-                    .append(newline())
-                    .append(newline())
-                    .append(MatrixUtil.toComponent(m, false)).build();
-        }).collect(Collectors.toList());
+        // Show at most 15 categories on main page, or else book becomes invalid
+        overview.append(categories.getKey().subList(0, Math.min(categories.getKey().size(), 15)));
 
         Audience.get(sender).openBook(Book.builder()
                 .author(text("Kit Recommender"))
                 .addPage(overview.build())
-                .pages(pages)
+                .pages(categories.getValue())
                 .build());
         return null;
+    }
+
+    private Map.Entry<TextComponent, TextComponent> renderCategory(Category category, Matrix m) {
+        String cat = category.toHumanString();
+
+        TextComponent indexComponent = text(cat, NamedTextColor.DARK_AQUA)
+                .hoverEvent(showText(text()
+                        .append(text(cat + " matrix:\n", NamedTextColor.DARK_PURPLE))
+                        .append(MatrixUtil.toComponent(m, true))
+                        .build()))
+                .append(newline());
+
+        TextComponent pageComponent = text(cat, NamedTextColor.DARK_PURPLE)
+                .append(newline())
+                .append(newline())
+                .append(MatrixUtil.toComponent(m, false));
+
+        return new AbstractMap.SimpleEntry<>(indexComponent, pageComponent);
     }
 
 
