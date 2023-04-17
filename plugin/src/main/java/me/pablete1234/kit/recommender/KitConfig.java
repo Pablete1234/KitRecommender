@@ -3,7 +3,7 @@ package me.pablete1234.kit.recommender;
 import org.bukkit.configuration.file.FileConfiguration;
 
 public class KitConfig {
-    public static boolean COLLECT_DATA = true;
+    public static boolean COLLECT_DATA = false;
     public static String KIT_DATA_FOLDER = "kit_data";
     public static boolean PREDICT_KITS = true;
     public static String KIT_MODEL_FOLDER = "kit_models";
