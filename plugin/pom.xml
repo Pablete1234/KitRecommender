@@ -5,7 +5,7 @@
     <parent>
         <artifactId>KitParent</artifactId>
         <groupId>me.pablete1234.kit</groupId>
-        <version>1.5.3</version>
+        <version>1.6.0</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
@@ -18,7 +18,7 @@
         <dependency>
             <groupId>me.pablete1234.kit</groupId>
             <artifactId>KitUtil</artifactId>
-            <version>1.5.3</version>
+            <version>1.6.0</version>
         </dependency>
 
         <dependency>
@@ -32,13 +32,6 @@
             <groupId>tc.oc.pgm</groupId>
             <artifactId>core</artifactId>
             <version>0.16-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>net.kyori</groupId>
-            <artifactId>adventure-api</artifactId>
-            <version>4.11.0</version>
             <scope>provided</scope>
         </dependency>
     </dependencies>
@@ -78,52 +71,9 @@
                                     <artifact>*:*</artifact>
                                     <excludes>
                                         <exclude>META-INF/**</exclude>
-                                        <exclude>**/*.html</exclude>
                                     </excludes>
                                 </filter>
-                                <filter>
-                                    <artifact>org.xerial.snappy:snappy-java</artifact>
-                                    <includes>
-                                        <include>org/xerial/**/*.class</include>
-                                        <include>org/xerial/snappy/native/Windows/x86_64/**</include>
-                                        <include>org/xerial/snappy/native/Linux/x86_64/**</include>
-                                    </includes>
-                                </filter>
                             </filters>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>com.github.wvengen</groupId>
-                <artifactId>proguard-maven-plugin</artifactId>
-                <version>2.1.1</version>
-                <executions>
-                    <execution>
-                        <phase>package</phase>
-                        <goals>
-                            <goal>proguard</goal>
-                        </goals>
-                        <configuration>
-                            <options>
-                                <option>-dontoptimize</option>
-                                <option>-dontobfuscate</option>
-                                <option>-dontnote</option>
-                                <option>-dontwarn</option>
-                                <option>-keepattributes Signature</option>
-                                <option>-keep class me.pablete1234.kit.** { *; }</option>
-                                <option>-keep class org.apache.parquet.hadoop.codec.SnappyCodec { *; }</option>
-                                <option>-keep class org.apache.parquet.column.** { *; }</option>
-                                <option>-keepclassmembers,allowoptimization enum * {
-                                    public static **[] values();
-                                    public static ** valueOf(java.lang.String);
-                                    }
-                                </option>
-                            </options>
-                            <libs>
-                                <lib>${java.home}/lib/rt.jar</lib>
-                            </libs>
                         </configuration>
                     </execution>
                 </executions>

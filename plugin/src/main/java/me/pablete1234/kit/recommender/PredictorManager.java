@@ -98,8 +98,7 @@ public class PredictorManager implements Listener {
 
         try (DataOutputStream dos = new DataOutputStream(Files.newOutputStream(playerModel, StandardOpenOption.CREATE))) {
             for (Map.Entry<Category, Matrix> entry : data.entrySet()) {
-                //noinspection deprecation
-                dos.writeInt(entry.getKey().getAll().iterator().next().getId());
+                dos.writeInt(entry.getKey().getFirstId());
                 for (Row row : entry.getValue()) for (double cell : row) dos.writeDouble(cell);
             }
         } catch (IOException e) {

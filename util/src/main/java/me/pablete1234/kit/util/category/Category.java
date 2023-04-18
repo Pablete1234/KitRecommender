@@ -20,15 +20,24 @@ public interface Category {
 
     ImmutableSet<Material> getAll();
 
+    @SuppressWarnings("deprecation")
     default byte getData(ItemStack is) {
         MaterialData md = is.getData();
-        //noinspection deprecation
         return md.getClass() == MaterialData.class ? 0 : md.getData();
     }
 
+    @SuppressWarnings("deprecation")
     default void putData(ItemStack is, byte data) {
-        //noinspection deprecation
         is.setData(is.getType().getNewData(data));
+    }
+
+    /**
+     * Get the id of the first material on the category, which should remain unique.
+     * @return an id that is unique for each category
+     */
+    @SuppressWarnings("deprecation")
+    default int getFirstId() {
+        return getAll().iterator().next().getId();
     }
 
     static ImmutableSet<Material> findMaterials(String ending) {

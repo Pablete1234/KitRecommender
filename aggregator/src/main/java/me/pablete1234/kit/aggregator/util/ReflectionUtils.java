@@ -4,6 +4,7 @@ import sun.misc.Unsafe;
 
 import java.lang.reflect.Field;
 
+@SuppressWarnings({"unchecked", "sunapi"})
 public class ReflectionUtils {
 
     private static final Unsafe unsafe;
@@ -21,7 +22,6 @@ public class ReflectionUtils {
         try {
             Field f = obj.getClass().getDeclaredField(field);
             f.setAccessible(true);
-            //noinspection unchecked
             return (T) f.get(obj);
         } catch (Exception e) {
             throw new RuntimeException(e);
@@ -40,7 +40,6 @@ public class ReflectionUtils {
 
     public static <T> T allocateInstance(Class<T> clazz) {
         try {
-            //noinspection unchecked
             return (T) unsafe.allocateInstance(clazz);
         } catch (InstantiationException e) {
             throw new RuntimeException(e);

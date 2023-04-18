@@ -1,4 +1,5 @@
-collect-data: true
-kit-data-folder: kit_data
+# Data collection disabled all together, we will no longer load the library required
+#collect-data: true
+#kit-data-folder: kit_data
 predict-kits: true
 kit-models-folder: kit_models

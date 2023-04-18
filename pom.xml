@@ -6,7 +6,7 @@
 
     <groupId>me.pablete1234.kit</groupId>
     <artifactId>KitParent</artifactId>
-    <version>1.5.3</version>
+    <version>1.6.0</version>
     <packaging>pom</packaging>
 
     <properties>
@@ -18,8 +18,9 @@
     <modules>
         <module>util</module>
         <module>plugin</module>
-        <module>aggregator</module>
-        <module>rewritter</module>
+        <!-- These are no longer needed -->
+<!--        <module>aggregator</module>-->
+<!--        <module>rewritter</module>-->
     </modules>
 
     <repositories>
@@ -50,6 +51,8 @@
                     <artifactId>zstd-jni</artifactId>
                 </exclusion>
             </exclusions>
+            <!-- Essentially remove the dep. We're not using it anymore in production. -->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 

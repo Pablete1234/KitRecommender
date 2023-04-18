@@ -7,6 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import tc.oc.pgm.kits.Slot;
+import tc.oc.pgm.kits.tag.ItemModifier;
 
 import java.time.Duration;
 import java.util.HashMap;
