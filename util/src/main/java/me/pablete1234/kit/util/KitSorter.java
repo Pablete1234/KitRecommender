@@ -268,7 +268,9 @@ public class KitSorter<K, C, KI, CI> {
         public boolean areSimilar(ItemStack kit, ItemStack item) {
             return kit.getType() == item.getType() &&
                     // If material has durability (eg: sword), ignore. Otherwise (eg: wool color) check durability.
-                    (kit.getType().getMaxDurability() > 0 || kit.getDurability() == item.getDurability()) &&
+                    (kit.getType().getMaxDurability() > 0 ||
+                            ItemModifier.TEAM_COLOR.has(kit) ||
+                            kit.getDurability() == item.getDurability()) &&
                     kit.getEnchantments().equals(item.getEnchantments());
         }
 
