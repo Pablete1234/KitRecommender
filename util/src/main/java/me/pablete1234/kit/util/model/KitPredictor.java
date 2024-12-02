@@ -3,7 +3,7 @@ package me.pablete1234.kit.util.model;
 import com.google.common.collect.Multiset;
 import me.pablete1234.kit.util.category.Category;
 import org.bukkit.inventory.ItemStack;
-import tc.oc.pgm.kits.Slot;
+import tc.oc.pgm.util.inventory.Slot;
 
 import java.util.Map;
 
