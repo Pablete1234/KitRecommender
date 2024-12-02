@@ -9,7 +9,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
 import org.jetbrains.annotations.Nullable;
 import tc.oc.pgm.kits.ApplyItemKitEvent;
-import tc.oc.pgm.kits.Slot;
+import tc.oc.pgm.util.inventory.Slot;
 
 import java.lang.ref.WeakReference;
 import java.time.Instant;

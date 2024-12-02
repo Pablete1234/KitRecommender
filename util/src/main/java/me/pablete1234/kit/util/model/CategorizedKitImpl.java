@@ -7,7 +7,7 @@ import me.pablete1234.kit.util.Categories;
 import me.pablete1234.kit.util.category.Category;
 import org.bukkit.inventory.ItemStack;
 import org.jetbrains.annotations.NotNull;
-import tc.oc.pgm.kits.Slot;
+import tc.oc.pgm.util.inventory.Slot;
 
 import java.util.Iterator;
 import java.util.Map;
@@ -23,7 +23,7 @@ public class CategorizedKitImpl implements KitPredictor.CategorizedKit {
 
     public CategorizedKitImpl(Map<Slot, ItemStack> kit) {
         kit.forEach((s, i) -> {
-            if (!s.isAuto() && s.getIndex() < KIT_SIZE)
+            if (s.hasIndex() && s.getIndex() < KIT_SIZE)
                 data[s.getIndex()] = Categories.of(i.getType());
         });
     }

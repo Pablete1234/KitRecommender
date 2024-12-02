@@ -6,8 +6,8 @@ import me.pablete1234.kit.util.model.KitPredictor;
 import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import tc.oc.pgm.kits.Slot;
 import tc.oc.pgm.kits.tag.ItemModifier;
+import tc.oc.pgm.util.inventory.Slot;
 
 import java.time.Duration;
 import java.util.HashMap;

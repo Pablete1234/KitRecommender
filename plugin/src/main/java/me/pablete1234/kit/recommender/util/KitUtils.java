@@ -4,7 +4,7 @@ import me.pablete1234.kit.recommender.modifiers.PlayerKitModel;
 import me.pablete1234.kit.util.ItemKitWrapper;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
-import tc.oc.pgm.kits.Slot;
+import tc.oc.pgm.util.inventory.Slot;
 
 import java.util.ArrayList;
 import java.util.Collection;
