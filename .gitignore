@@ -1,3 +1,27 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+
+# Gradle
+.gradle
+build/
+
+# Mac OSX generated files
+.DS_Store
+
+# Eclipse generated files
+.classpath
+.project
+.settings
+
+# IntelliJ IDEA
+.idea
+*.iml
+
+# Vim generated files
+*~
+*.swp
+
 # Compiled class file
 *.class
 
@@ -9,10 +33,6 @@
 
 # Mobile Tools for Java (J2ME)
 .mtj.tmp/
-
-# Package Files #
-target/
-dependency-reduced-pom.xml
 
 # Intellij idea files
 .idea/
