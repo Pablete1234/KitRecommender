@@ -12,7 +12,7 @@ dependencies {
 }
 
 tasks.named<ShadowJar>("shadowJar") {
-    archiveFileName = "KitRecommender-${version}.jar"
+    archiveFileName = "KitRecommender.jar"
     archiveClassifier.set("")
 
     dependencies {
