@@ -39,7 +39,7 @@ public class KitSorter<K, C, KI, CI> {
 
     private final Adapter<K, C, KI, CI> adapter;
 
-    public KitSorter(Adapter<K, C, KI, CI> adapter) {
+    private KitSorter(Adapter<K, C, KI, CI> adapter) {
         this.adapter = adapter;
     }
 
@@ -349,7 +349,7 @@ public class KitSorter<K, C, KI, CI> {
 
         @Override
         public boolean maybeContainsKI(ItemKitWrapper kit, ItemStack item) {
-            return kit.getMaterials().contains(item);
+            return kit.getMaterials().contains(item.getType());
         }
 
         @Override

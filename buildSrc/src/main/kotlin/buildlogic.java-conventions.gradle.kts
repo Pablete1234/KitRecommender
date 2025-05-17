@@ -1,10 +1,11 @@
 plugins {
     `java-library`
-    id("com.diffplug.spotless")
-    id("de.skuzzle.restrictimports")
 }
 
 java {
+    sourceCompatibility = JavaVersion.VERSION_1_8
+    targetCompatibility = JavaVersion.VERSION_1_8
+
     toolchain {
         languageVersion = JavaLanguageVersion.of(21)
     }
@@ -13,21 +14,24 @@ java {
 repositories {
     mavenCentral()
     mavenLocal()
-    maven {
-        url = uri("https://repo.pgm.fyi/snapshots")
-    }
-
-    maven {
-        url = uri("https://s01.oss.sonatype.org/content/repositories/snapshots/")
-    }
-
-    maven {
-        url = uri("https://jitpack.io")
-    }
+    maven("https://repo.pgm.fyi/snapshots")
+    maven("https://jitpack.io")
 }
 
+
+
 dependencies {
-    compileOnly("com.github.pablete1234:parquet-floor:java8-SNAPSHOT")
+    // Setting this to true allows the plugin to use data-collection mode, but also makes
+    // the output jar significantly bigger (from ~80kb to ~6MB)
+    val enableDataCollection = false
+
+    if (enableDataCollection) {
+        api("com.github.pablete1234:parquet-floor:java8-SNAPSHOT") {
+            exclude("com.github.luben", "zstd-jni")
+        }
+    } else {
+        compileOnly("com.github.pablete1234:parquet-floor:java8-SNAPSHOT")
+    }
     compileOnly("org.jetbrains:annotations:22.0.0")
 }
 
@@ -41,24 +45,5 @@ tasks {
     }
     withType<Javadoc>() {
         options.encoding = "UTF-8"
-    }
-}
-
-spotless {
-    ratchetFrom = "origin/master"
-    java {
-        removeUnusedImports()
-        palantirJavaFormat("2.47.0").style("GOOGLE").formatJavadoc(true)
-    }
-}
-
-restrictImports {
-    group {
-        reason = "Use org.jetbrains.annotations to add annotations"
-        bannedImports = listOf("javax.annotation.**")
-    }
-    group {
-        reason = "Use tc.oc.pgm.util.Assert to add assertions"
-        bannedImports = listOf("com.google.common.base.Preconditions.**", "java.util.Objects.requireNonNull")
     }
 }

@@ -14,12 +14,12 @@ dependencies {
 tasks.named<ShadowJar>("shadowJar") {
     archiveFileName = "KitRecommender.jar"
     archiveClassifier.set("")
+    destinationDirectory = rootProject.projectDir.resolve("build/libs")
 
+    minimize()
     dependencies {
         exclude(dependency("org.jetbrains:annotations"))
     }
-
-    minimize()
 
     exclude("META-INF/**")
 }

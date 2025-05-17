@@ -10,6 +10,4 @@ repositories {
 
 dependencies {
     implementation("com.gradleup.shadow:shadow-gradle-plugin:8.3.0")
-    implementation("com.diffplug.spotless:spotless-plugin-gradle:7.0.0.BETA4")
-    implementation("de.skuzzle.restrictimports:restrict-imports-gradle-plugin:2.6.0")
 }

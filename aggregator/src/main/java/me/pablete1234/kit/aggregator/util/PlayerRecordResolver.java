@@ -5,7 +5,7 @@ import me.pablete1234.kit.util.InventoryImage;
 import me.pablete1234.kit.util.KitSorter;
 import me.pablete1234.kit.util.serialized.InventoryRecord;
 import me.pablete1234.kit.util.serialized.KitPreferenceRecord;
-import tc.oc.pgm.kits.Slot;
+import tc.oc.pgm.util.inventory.Slot;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
