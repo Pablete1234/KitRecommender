@@ -1,0 +1,9 @@
+# https://docs.gradle.org/current/userguide/platforms.html#sub::toml-dependencies-format
+
+[versions]
+app-ashcon-sportpaper = "1.8.8-R0.1-SNAPSHOT"
+tc-oc-pgm-core = "0.16-SNAPSHOT"
+
+[libraries]
+app-ashcon-sportpaper = { module = "app.ashcon:sportpaper", version.ref = "app-ashcon-sportpaper" }
+tc-oc-pgm-core = { module = "tc.oc.pgm:core", version.ref = "tc-oc-pgm-core" }
